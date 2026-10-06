@@ -1,237 +1,538 @@
 # UpgradeGuard
 
-### A Multi-Agent AI System for Dependency Upgrade Impact Analysis and Risk-Aware Migration Planning
+### Multi-Agent AI for Dependency Upgrade Impact Analysis & Risk-Aware Migration Planning
 
-UpgradeGuard is an Agentic AI decision-support system that analyzes the potential impact of a software dependency upgrade before it is applied.
+> **Before you upgrade a dependency, understand what might break.**
 
-Instead of simply telling developers that a package is outdated, UpgradeGuard investigates:
+UpgradeGuard is an **Agentic AI decision-support system** that analyzes a proposed software dependency upgrade before it is applied.
 
-- What changed between the current and target versions?
-- Which parts of the project may be affected?
-- Are there breaking or deprecated APIs?
-- Are there dependency or security concerns?
-- What migration steps may be required?
-- What should be tested before accepting the upgrade?
-- How strong is the evidence behind each finding?
+Instead of simply detecting outdated packages, UpgradeGuard investigates the relationship between:
 
-The system uses multiple specialized agents coordinated through a supervisor and includes a verification loop to review important findings.
+**Dependency Changes → Repository Usage → Evidence → Risk → Validation**
+
+The system coordinates multiple specialized AI agents to identify potential breaking changes, affected code, dependency concerns, security signals, migration requirements, and targeted tests.
 
 ---
 
-## Problem
+## 🚀 Why UpgradeGuard?
 
-Dependency upgrades are a normal part of software development, but upgrading a library or framework can introduce:
+Dependency upgrades are a normal part of software development.
+
+But a seemingly simple change such as:
+
+```text
+FastAPI 0.110.0 → 0.120.0
+```
+
+can introduce:
 
 - Breaking API changes
 - Deprecated functionality
 - Configuration changes
 - Dependency conflicts
-- Unexpected source-code impact
-- Security-related concerns
-- Additional migration and testing effort
+- Unexpected code impact
+- Security considerations
+- Additional migration effort
 
-Existing package managers can identify outdated dependencies, and security scanners can identify known vulnerabilities. However, developers still need to manually connect version changes with the actual usage of that dependency inside their project.
+Existing package managers can tell developers that a dependency is outdated.
 
-UpgradeGuard focuses on this missing connection.
+Security scanners can identify known vulnerabilities.
 
-> **"What could break if I upgrade this dependency, and what should I verify before I do it?"**
+But developers still have to answer the harder question:
+
+> **"How will this specific version change affect my specific codebase?"**
+
+That's the problem UpgradeGuard focuses on.
 
 ---
 
-## Solution
+# 🎯 Problem Statement
 
-UpgradeGuard combines dependency analysis, documentation/change analysis, repository code analysis, security checks, risk assessment, verification, and test planning into one workflow.
-
-### High-Level Workflow
+Developers often need to manually connect information from several places:
 
 ```text
-Developer
-    │
-    ▼
-Web Interface
-    │
-    ▼
-Supervisor Agent
-    │
-    ├──────────────┬──────────────┬──────────────┐
-    ▼              ▼              ▼              ▼
-Dependency     Change         Code Impact     Security
-Agent          Analysis       Agent           Agent
-                 Agent
-    │              │              │              │
-    └──────────────┴──────────────┴──────────────┘
-                         │
-                         ▼
-                  Evidence Store
-                         │
-                         ▼
-                 Verifier / Critic
-                         │
-                  ┌──────┴──────┐
-                  │             │
-             Strong enough?   Weak/Conflict
-                  │             │
-                  ▼             ▼
-             Risk Engine    Re-analysis
-                  │
-                  ▼
-             Test Planner
-                  │
-                  ▼
-             Report Agent
-                  │
-                  ▼
-        Migration & Validation Plan
+Release Notes
+     +
+Migration Guides
+     +
+Dependency Manifest
+     +
+Lockfile
+     +
+Source Code
+     +
+Security Advisories
+     +
+Existing Tests
+```
 
+This makes dependency upgrades time-consuming and error-prone.
 
-Multi-Agent Architecture
-Agent	Responsibility
-Supervisor Agent	Coordinates the analysis and routes tasks to specialized agents
-Dependency Agent	Inspects dependency manifests, versions and dependency relationships
-Change Analysis Agent	Analyzes release notes, migration information and documented changes
-Code Impact Agent	Identifies project files, imports, APIs, symbols and configurations affected by the upgrade
-Security Agent	Checks available security/advisory information relevant to the dependency
-Verifier / Critic	Reviews findings, evidence and contradictions and can trigger targeted re-analysis
-Risk Engine	Combines analysis signals into an explainable risk assessment
-Test Planner	Generates targeted validation and testing recommendations
-Report Agent	Produces the final structured migration report
+UpgradeGuard brings these analysis steps into one coordinated workflow.
 
+---
 
-Key Innovation
-UpgradeGuard is not designed as a generic chatbot or conventional code-review tool.
-Traditional code review asks:
-"Is this code correct?"
+# 💡 Core Idea
 
 UpgradeGuard asks:
-"If dependency X changes from version A to version B, what parts of this project could be affected, why, and what should be verified before accepting the upgrade?"
 
-The system connects three important perspectives:
-Dependency Changes
-        +
-Repository-Specific Usage
-        +
-Evidence Verification
-        ↓
-Risk-Aware Migration Plan
+> **"If dependency X changes from version A to version B, what parts of this project could be affected, why, and what should be verified before accepting the upgrade?"**
 
-Example
-A developer proposes:
-FastAPI
+It does not simply generate an AI response.
+
+Instead, multiple specialized agents investigate different aspects of the proposed upgrade and a verification layer reviews important findings.
+
+---
+
+# 🧠 Multi-Agent Architecture
+
+```text
+                         Developer
+                             │
+                             ▼
+                       Web Interface
+                             │
+                             ▼
+                    ┌─────────────────┐
+                    │ Supervisor Agent│
+                    └────────┬────────┘
+                             │
+          ┌──────────────────┼──────────────────┐
+          │                  │                  │
+          ▼                  ▼                  ▼
+   Dependency Agent   Change Analysis      Code Impact
+                           Agent               Agent
+          │                  │                  │
+          └──────────────────┼──────────────────┘
+                             │
+                             ▼
+                      Security Agent
+                             │
+                             ▼
+                      Evidence Store
+                             │
+                             ▼
+                    Verifier / Critic
+                       │           │
+                  Strong?       Weak /
+                       │        Conflict
+                       │           │
+                       │           ▼
+                       │       Re-analysis
+                       │
+                       ▼
+                     Risk Engine
+                             │
+                             ▼
+                      Test Planner
+                             │
+                             ▼
+                      Report Agent
+                             │
+                             ▼
+              Migration & Validation Plan
+```
+
+---
+
+# 🤖 Specialized Agents
+
+| Agent | Responsibility |
+|---|---|
+| **Supervisor Agent** | Coordinates the workflow and routes tasks |
+| **Dependency Agent** | Analyzes manifests, versions and dependency relationships |
+| **Change Analysis Agent** | Analyzes release notes, migration guides and documented changes |
+| **Code Impact Agent** | Identifies affected imports, APIs, symbols, configurations and files |
+| **Security Agent** | Checks available security/advisory information |
+| **Verifier / Critic** | Reviews findings and evidence and identifies weak or conflicting results |
+| **Risk Engine** | Produces an explainable risk assessment |
+| **Test Planner** | Generates targeted validation and testing recommendations |
+| **Report Agent** | Converts the analysis into a structured migration report |
+
+---
+
+# 🔄 How It Works
+
+### 1. Define the Upgrade
+
+The developer provides:
+
+```text
+Dependency: FastAPI
 Current Version: 0.110.0
 Target Version: 0.120.0
+Repository: Project Codebase
+```
 
-UpgradeGuard can analyze the proposed change and produce findings such as:
-Overall Risk: Medium
+### 2. Supervisor Plans the Analysis
 
-Potential Impact:
-- API usage requiring review
-- Configuration changes
-- Affected source files
-- Dependency compatibility concerns
+The Supervisor Agent determines which specialized agents should run.
 
-Recommended Actions:
-1. Review identified API usages
+### 3. Parallel Investigation
+
+Different agents investigate different dimensions:
+
+```text
+Dependency Relationships
+        ↓
+Version Changes
+        ↓
+Repository Usage
+        ↓
+Security Signals
+        ↓
+Evidence
+```
+
+### 4. Evidence Collection
+
+Findings are associated with their supporting evidence wherever available.
+
+### 5. Verification
+
+The Verifier/Critic reviews important findings.
+
+If a finding is weak, incomplete or contradictory, the workflow can trigger targeted re-analysis.
+
+```text
+Finding
+   ↓
+Verification
+   ↓
+Strong Evidence ──────→ Continue
+   │
+   └── Weak / Conflict
+             ↓
+        Re-analysis
+```
+
+### 6. Risk Assessment
+
+The system combines analysis signals into an explainable risk assessment.
+
+### 7. Test Planning
+
+UpgradeGuard generates a targeted validation checklist based on the identified impact.
+
+### 8. Final Report
+
+The developer receives:
+
+- Upgrade summary
+- Potential breaking changes
+- Affected files
+- Dependency concerns
+- Security signals
+- Evidence
+- Risk assessment
+- Migration recommendations
+- Targeted tests
+- Limitations
+
+---
+
+# 🔍 What Makes It Different?
+
+UpgradeGuard is **not a generic chatbot**.
+
+It is also different from a conventional code-review system.
+
+### Traditional Code Review
+
+> **"Is my current code correct?"**
+
+### UpgradeGuard
+
+> **"What could change if I upgrade this dependency, where could it affect my project, and what should I verify before accepting the change?"**
+
+The system connects:
+
+```text
+┌─────────────────────┐
+│ Dependency Changes  │
+└──────────┬──────────┘
+           │
+           +
+           │
+┌──────────▼──────────┐
+│ Repository Usage    │
+└──────────┬──────────┘
+           │
+           +
+           │
+┌──────────▼──────────┐
+│ Evidence Verification│
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│ Risk-Aware Migration│
+│ & Validation Plan   │
+└─────────────────────┘
+```
+
+---
+
+# 📊 Example Analysis
+
+Suppose a developer proposes:
+
+```text
+Dependency : FastAPI
+Current    : 0.110.0
+Target     : 0.120.0
+```
+
+UpgradeGuard may produce:
+
+```text
+Overall Risk
+────────────
+MEDIUM
+
+Potential Impact
+───────────────
+• API usage requiring review
+• Configuration compatibility
+• Affected source files
+• Dependency compatibility concerns
+
+Recommended Validation
+──────────────────────
+1. Review affected API usages
 2. Verify configuration compatibility
-3. Run targeted tests
-4. Validate dependent packages
-5. Review evidence before applying the upgrade
+3. Validate dependent packages
+4. Run targeted tests
+5. Review supporting evidence
+```
 
-The actual findings depend on the dependency, versions, repository and available evidence.
-Core Features
-Dependency Analysis
-- Current vs target version analysis
+> The actual findings depend on the dependency, versions, repository and available evidence.
+
+---
+
+# 🧩 Core Capabilities
+
+## Dependency Analysis
+
+- Current vs target version comparison
 - Dependency relationship inspection
-- Manifest and lockfile analysis
+- Manifest analysis
+- Lockfile analysis
 - Compatibility considerations
-Change Analysis
+
+## Change Analysis
+
 - Breaking-change identification
 - Deprecated API detection
 - Migration information analysis
 - Version-to-version change mapping
-Repository Code Impact
-- Import and usage detection
+- Release information analysis
+
+## Repository Code Impact
+
+- Import detection
 - API/symbol references
 - Configuration references
 - Affected-file identification
-- Deterministic repository search / parsing combined with AI reasoning
-Security Analysis
-- Dependency security/advisory checks
+- Repository search
+- Static code analysis
+- Deterministic extraction combined with AI reasoning
+
+## Security Analysis
+
+- Dependency advisory checks
 - Security-related upgrade considerations
-- Evidence-backed findings where available
-Risk Assessment
+- Available vulnerability information
+- Evidence-backed security findings
+
+## Risk Assessment
+
 - Explainable risk factors
 - Severity classification
-- Confidence/evidence indicators
+- Evidence/confidence indicators
 - Human-review recommendations
-Verification Loop
-Important findings are reviewed by a verifier/critic agent.
-If evidence is weak, incomplete or contradictory, the system can request targeted re-analysis instead of blindly accepting the first result.
-Test Planning
-Generates a targeted validation checklist based on the identified impact areas.
-Tech Stack
+
+## Verification Loop
+
+Important findings are reviewed by a verifier/critic layer.
+
+```text
+Analysis
+   ↓
+Finding
+   ↓
+Evidence Check
+   ↓
+┌───────────────────┐
+│ Supported?        │
+└─────────┬─────────┘
+          │
+      ┌───┴───┐
+      ▼       ▼
+     YES      NO
+      │       │
+      ▼       ▼
+ Continue   Re-analyze
+```
+
+## Test Planning
+
+The system generates targeted validation recommendations based on the identified impact areas.
+
+---
+
+# 🏗️ System Components
+
+```text
 Frontend
-- Next.js
-- TypeScript
-- Tailwind CSS
-- Framer Motion
-- Lucide Icons
-Backend
-- Python
-- FastAPI
-Agent Orchestration
-- LangGraph
-AI / LLM
+   │
+   ▼
+Next.js Application
+   │
+   ▼
+FastAPI Backend
+   │
+   ▼
+LangGraph Orchestration
+   │
+   ├── Supervisor
+   ├── Dependency Agent
+   ├── Change Analysis Agent
+   ├── Code Impact Agent
+   ├── Security Agent
+   ├── Verifier
+   ├── Risk Engine
+   ├── Test Planner
+   └── Report Agent
+   │
+   ▼
+Evidence / Analysis Storage
+```
+
+---
+
+# 🛠️ Tech Stack
+
+### Frontend
+
+- **Next.js**
+- **TypeScript**
+- **Tailwind CSS**
+- **Framer Motion**
+- **Lucide Icons**
+
+### Backend
+
+- **Python**
+- **FastAPI**
+
+### Agent Orchestration
+
+- **LangGraph**
+
+### AI / LLM
+
 - LLM-based specialized agents
 - Structured agent outputs
 - Tool-assisted analysis
-Code Analysis
-- Python AST / repository search
+
+### Code Analysis
+
+- Python AST
+- Repository search
 - Tree-sitter-style parsing approach
 - Deterministic extraction + AI reasoning
-Security / Advisory Data
+
+### Security / Advisory Data
+
 - OSV/GHSA-compatible advisory sources
-Storage
+
+### Storage
+
 - SQLite for MVP
 - PostgreSQL for future production deployment
-Project Structure
+
+---
+
+# 🖥️ Current Prototype
+
+The current version focuses on the **developer-facing investigation console** and demonstrates the complete analysis experience using deterministic demo data.
+
+### Current UI includes
+
+- Overview
+- New Analysis
+- Analysis Progress
+- Results Dashboard
+- Breaking Changes
+- Code Impact
+- Dependencies
+- Security
+- Migration Plan
+- Tests
+- Evidence
+- Architecture
+- Analyses
+- Repositories
+- Findings
+- Settings
+- Dark / Light theme
+- Agent activity visualization
+- Verification workflow visualization
+
+---
+
+# 📁 Project Structure
+
+```text
 UpgradeGuard/
 │
-├── app/
-│   ├── architecture/
-│   ├── analyses/
-│   ├── analysis/
-│   ├── evidence/
-│   ├── findings/
-│   ├── new/
-│   ├── repositories/
-│   └── settings/
-│
-├── components/
-│   ├── GlassCard
-│   ├── CodeViewer
-│   ├── RiskBadge
-│   ├── VerificationBadge
-│   ├── Tabs
-│   └── ThemeToggle
+├── src/
+│   ├── app/
+│   │   ├── architecture/
+│   │   ├── analyses/
+│   │   ├── analysis/
+│   │   ├── evidence/
+│   │   ├── findings/
+│   │   ├── new/
+│   │   ├── repositories/
+│   │   └── settings/
+│   │
+│   ├── components/
+│   │   ├── GlassCard
+│   │   ├── CodeViewer
+│   │   ├── RiskBadge
+│   │   ├── VerificationBadge
+│   │   ├── Tabs
+│   │   └── ThemeToggle
+│   │
+│   └── ...
 │
 ├── public/
 │
 ├── package.json
-├── tailwind.config.*
+├── package-lock.json
+├── next.config.mjs
+├── tailwind.config.ts
 ├── tsconfig.json
 ├── .gitignore
 └── README.md
+```
 
-The repository structure may evolve as the backend and agent layer are implemented.
+> The structure will evolve as the backend and agent layer are implemented.
 
-Current Status
-Phase 1 — UI / Prototype
-- [x] Project architecture defined
+---
+
+# 📌 Development Roadmap
+
+## Phase 1 — Prototype / UI
+
+- [x] Project architecture
 - [x] Next.js frontend
 - [x] TypeScript
 - [x] Tailwind styling
 - [x] Dark / light theme
-- [x] Analysis workflow UI
+- [x] Analysis workflow
 - [x] Results dashboard
 - [x] Architecture view
 - [x] Evidence view
@@ -240,69 +541,91 @@ Phase 1 — UI / Prototype
 - [x] Deterministic demo analysis
 - [x] Agent activity visualization
 - [x] Production build verification
-Phase 2 — Agent Backend
+
+## Phase 2 — Agent Backend
+
 - [ ] FastAPI backend
 - [ ] LangGraph orchestration
-- [ ] Supervisor agent
-- [ ] Dependency agent
-- [ ] Change analysis agent
-- [ ] Code impact agent
-- [ ] Security agent
-- [ ] Verifier / critic loop
-- [ ] Risk engine
-- [ ] Test planner
+- [ ] Supervisor Agent
+- [ ] Dependency Agent
+- [ ] Change Analysis Agent
+- [ ] Code Impact Agent
+- [ ] Security Agent
+- [ ] Verifier / Critic loop
+- [ ] Risk Engine
+- [ ] Test Planner
 - [ ] Report generation
-Phase 3 — Real Repository Analysis
+
+## Phase 3 — Real Repository Analysis
+
 - [ ] Repository ingestion
-- [ ] Manifest / lockfile parsing
+- [ ] Manifest parsing
+- [ ] Lockfile parsing
 - [ ] AST-based code analysis
 - [ ] Real dependency metadata
-- [ ] Real advisory integration
+- [ ] Advisory integration
 - [ ] Evidence collection
 - [ ] End-to-end analysis
-Risk Model
-UpgradeGuard should not present risk as an absolute guarantee.
-The risk assessment is intended as a decision-support signal based on available evidence.
-Possible factors include:
-Breaking Changes
-      +
-Code Usage Impact
-      +
-Dependency Conflicts
-      +
-Security Signals
-      +
-Evidence Confidence
-      +
-Validation Coverage
-      ↓
-Explainable Risk Assessment
 
-The final decision to upgrade remains with the developer.
-Design Philosophy
-UpgradeGuard is designed around the idea of a:
-Developer Dependency Investigation Console
-The interface aims to combine ideas from:
-- IDEs
-- GitHub developer workflows
-- observability dashboards
-- dependency analysis tools
-- forensic investigation interfaces
-The goal is to prioritize evidence, traceability and developer decision-making over generic chatbot interactions.
-Why Multi-Agent AI?
-Different parts of dependency analysis require different types of reasoning.
+## Phase 4 — Advanced Capabilities
+
+- [ ] GitHub / GitLab integration
+- [ ] Pull Request analysis
+- [ ] CI/CD integration
+- [ ] Automated dependency diff generation
+- [ ] Dependency graph visualization
+- [ ] Isolated test execution
+- [ ] Multi-language support
+- [ ] Team approval workflows
+
+---
+
+# 📈 Risk Model
+
+UpgradeGuard does **not** treat risk as an absolute guarantee.
+
+Risk is intended to be a decision-support signal based on available evidence.
+
+Possible factors include:
+
+```text
+Breaking Changes
+       +
+Code Usage Impact
+       +
+Dependency Conflicts
+       +
+Security Signals
+       +
+Evidence Confidence
+       +
+Validation Coverage
+       ↓
+Explainable Risk Assessment
+```
+
+The final decision to apply an upgrade remains with the developer.
+
+---
+
+# 🧠 Why Multi-Agent AI?
+
+Dependency upgrade analysis contains several different reasoning problems.
+
 For example:
+
+```text
 Dependency Agent
       ↓
 "What dependencies are involved?"
 
 Change Analysis Agent
       ↓
-"What changed between versions?"
+"What changed between the versions?"
 
 Code Impact Agent
       ↓
-"Where does this dependency affect the project?"
+"Where is this dependency actually used?"
 
 Security Agent
       ↓
@@ -310,40 +633,46 @@ Security Agent
 
 Verifier
       ↓
-"Is the finding actually supported by evidence?"
+"Is the finding supported by evidence?"
 
 Risk + Test Planner
       ↓
-"What should the developer do next?"
+"What should the developer verify next?"
+```
 
-A supervisor coordinates these specialized tasks rather than relying on one general-purpose AI response.
-Limitations
-UpgradeGuard is a decision-support system.
-It does not guarantee that an upgrade is safe.
+A supervisor coordinates these specialized tasks instead of relying on one general-purpose AI response.
+
+---
+
+# 🔐 Safety & Limitations
+
+UpgradeGuard is a **decision-support system**.
+
+It does **not** guarantee that an upgrade is safe.
+
 Potential limitations include:
-- Incomplete or unavailable release information
+
+- Incomplete release information
+- Unavailable migration documentation
 - Incomplete repository analysis
 - Dynamic code patterns that are difficult to detect statically
 - Third-party dependency behavior
-- Incomplete security/advisory coverage
+- Incomplete advisory coverage
 - LLM reasoning errors
-Therefore, developers should review the generated findings and run appropriate tests before applying upgrades.
-Future Scope
-Possible future improvements include:
-- GitHub/GitLab repository integration
-- Pull Request analysis
-- Automated dependency diff generation
-- CI/CD integration
-- More programming language ecosystems
-- Docker/container dependency analysis
-- Historical upgrade learning
-- Automated test execution in isolated environments
-- Dependency graph visualization
-- Team collaboration and approval workflows
-- Production-grade PostgreSQL storage
-- More advisory and package ecosystem integrations
-Academic Relevance
+- False positives or false negatives
+
+Therefore:
+
+> **Developers should review generated findings and run appropriate tests before applying an upgrade.**
+
+The system is designed to assist developer decision-making, not replace it.
+
+---
+
+# 🎓 Academic Relevance
+
 UpgradeGuard demonstrates concepts from:
+
 - Agentic AI
 - Multi-Agent Systems
 - Large Language Models
@@ -354,14 +683,171 @@ UpgradeGuard demonstrates concepts from:
 - Risk Assessment
 - Explainable AI
 - Human-in-the-loop AI
-It provides a practical application of Agentic AI to a real software engineering problem.
-Project Goal
+
+The project applies Agentic AI to a practical software engineering problem rather than using agents only for conversational tasks.
+
+---
+
+# 🔮 Future Scope
+
+Possible future improvements include:
+
+- GitHub/GitLab repository integration
+- Pull Request analysis
+- CI/CD integration
+- Automated dependency upgrade proposals
+- Automated test execution in isolated environments
+- Dependency graph visualization
+- Historical upgrade learning
+- Docker/container dependency analysis
+- Support for additional programming-language ecosystems
+- Team collaboration and approval workflows
+- Production-grade PostgreSQL storage
+- Additional package ecosystem integrations
+
+---
+
+# ⚙️ Local Development
+
+### Prerequisites
+
+- Node.js 18+
+- npm
+
+### Clone
+
+```bash
+git clone https://github.com/Vrishti-vibes/UpgradeGuard.git
+cd UpgradeGuard
+```
+
+### Install dependencies
+
+```bash
+npm install
+```
+
+### Start development server
+
+```bash
+npm run dev
+```
+
+Then open:
+
+```text
+http://localhost:3000
+```
+
+### Production build
+
+```bash
+npm run build
+```
+
+---
+
+# 🧪 Current Demo
+
+The current prototype contains a deterministic demonstration of a dependency upgrade analysis workflow.
+
+Example:
+
+```text
+FastAPI
+0.110.0
+   ↓
+0.120.0
+```
+
+The UI demonstrates how multiple analysis stages can be represented:
+
+```text
+Dependency Analysis
+        ↓
+Change Analysis
+        ↓
+Code Impact
+        ↓
+Security
+        ↓
+Verification
+        ↓
+Risk
+        ↓
+Testing
+        ↓
+Migration Plan
+```
+
+Real backend agents, live advisory integrations and repository analysis are part of the planned implementation roadmap.
+
+---
+
+# 🎨 Design Philosophy
+
+UpgradeGuard is designed as a:
+
+## Developer Dependency Investigation Console
+
+The interface takes inspiration from:
+
+- Modern IDEs
+- GitHub developer workflows
+- Observability consoles
+- Dependency analysis tools
+- Forensic investigation interfaces
+
+The design goal is to prioritize:
+
+**Evidence + Traceability + Developer Decision-Making**
+
+over generic chatbot-style interactions.
+
+---
+
+# 📊 Project Goal
+
 The long-term goal of UpgradeGuard is to help developers make safer and more informed dependency upgrade decisions by connecting:
-Version Changes → Code Impact → Evidence → Risk → Validation
+
+```text
+Version Changes
+      ↓
+Code Impact
+      ↓
+Evidence
+      ↓
+Risk
+      ↓
+Validation
+```
+
 before the upgrade is applied.
-Author
-Kumari Vrishti
-B.Tech — Computer Science & Engineering
-Project: UpgradeGuard
-License
-This project is currently developed as an academic/project prototype.
+
+---
+
+# 👩‍💻 Author
+
+### Kumari Vrishti
+
+**B.Tech — Computer Science & Engineering**
+
+Project: **UpgradeGuard**
+
+---
+
+# 📄 Project Status
+
+**Current Status:** 🚧 Active Development
+
+**Stage:** UI / Functional Prototype → Agent Backend Integration
+
+UpgradeGuard is currently being developed as an academic and portfolio project.
+
+---
+
+## ⭐ If you find the project interesting
+
+Feel free to explore the repository, follow the development progress, and contribute ideas.
+
+**UpgradeGuard — Investigate before you upgrade.**
