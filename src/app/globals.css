@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Default to Dark Mode variables */
+  --bg-base: #090A0F;
+  --bg-surface: rgba(16, 20, 30, 0.75);
+  --bg-elevated: #131722;
+  --bg-subtle: rgba(255, 255, 255, 0.03);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.15);
+  --text-primary: #F3F4F6;
+  --text-secondary: #9CA3AF;
+  --text-tertiary: #6B7280;
+}
+
+html.light {
+  /* High-end engineering tool Light Mode variables */
+  --bg-base: #F8F9FA;
+  --bg-surface: rgba(255, 255, 255, 0.92);
+  --bg-elevated: #FFFFFF;
+  --bg-subtle: rgba(0, 0, 0, 0.025);
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.16);
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-tertiary: #94A3B8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  min-height: 100vh;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Subtle architectural dot grid */
+.bg-tech-grid {
+  background-size: 28px 28px;
+  background-image: 
+    radial-gradient(var(--border-subtle) 1px, transparent 1px);
+}
+
+/* Three Visual Layers for Sophisticated Glassmorphism */
+.surface-card {
+  background: var(--bg-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-subtle);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.surface-elevated {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08);
+}
+
+.surface-subtle {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+}
+
+/* Code typography */
+code, pre, .font-mono {
+  font-family: var(--font-mono), "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Refined custom scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
