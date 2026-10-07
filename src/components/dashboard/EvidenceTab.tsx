@@ -1,8 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { EvidenceItem } from "@/types";
-import { VerificationBadge } from "@/components/ui/VerificationBadge";
 import {
   ShieldCheck,
   FileSearch,
@@ -10,6 +9,7 @@ import {
   GitCommit,
   Code2,
   Database,
+  CheckCircle2,
 } from "lucide-react";
 
 interface EvidenceTabProps {
@@ -17,106 +17,122 @@ interface EvidenceTabProps {
 }
 
 export function EvidenceTab({ evidenceList }: EvidenceTabProps) {
+  const [selectedEvidenceId, setSelectedEvidenceId] = useState<string>("EV-01");
+
+  const selectedEvidence =
+    evidenceList.find((e) => e.id === selectedEvidenceId) || evidenceList[0];
+
   const getSourceIcon = (type: string) => {
     switch (type) {
       case "PyPI Changelog":
-        return <BookOpen className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />;
+        return <BookOpen className="w-4 h-4 text-indigo-600" />;
       case "AST Call Graph":
-        return <Code2 className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />;
+        return <Code2 className="w-4 h-4 text-cyan-600" />;
       case "GitHub Commit Diff":
-        return <GitCommit className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400" />;
+        return <GitCommit className="w-4 h-4 text-indigo-500" />;
       case "OSV Advisory DB":
-        return <Database className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />;
+        return <Database className="w-4 h-4 text-red-500" />;
       default:
-        return <FileSearch className="w-3.5 h-3.5 text-zinc-400" />;
+        return <FileSearch className="w-4 h-4 text-[var(--text-muted)]" />;
     }
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 font-sans text-sm">
       {/* Evidence Store Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-white/[0.08] bg-white dark:bg-[#0A0C11]/90 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-5 rounded-2xl clay-card bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
         <div>
-          <h3 className="text-sm font-bold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2 font-sans">
-            <span>Evidence Locker & Verifier Audit Trail</span>
-            <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded bg-teal-50 dark:bg-teal-500/15 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-500/25">
-              6 Verified Artifacts
-            </span>
+          <h3 className="font-bold text-base text-[var(--text-primary)]">
+            Verified Evidence & Sources ({evidenceList.length})
           </h3>
-          <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5 font-sans">
-            Every claimed breaking change must be substantiated by AST call sites, release diffs, or vulnerability feeds before acceptance.
+          <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+            Every finding is backed by official changelogs, commit diffs, or project code references.
           </p>
         </div>
 
-        <span className="text-xs font-mono text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-white/[0.04] px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-white/[0.06] flex items-center gap-1.5 self-start sm:self-auto">
-          <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-          <span>Critic Floor: ≥ 90% Confidence</span>
-        </span>
+        <div className="flex items-center gap-1.5 text-xs text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950/30 px-3 py-1.5 rounded-xl border border-green-200 dark:border-green-800/40 font-semibold font-sans">
+          <CheckCircle2 className="w-4 h-4 text-green-600" />
+          <span>100% Grounded Sources</span>
+        </div>
       </div>
 
-      {/* Evidence Cards */}
-      <div className="space-y-3">
-        {evidenceList.map((item) => (
-          <div
-            key={item.id}
-            className="rounded-xl border border-zinc-200 dark:border-white/[0.08] bg-white dark:bg-[#0A0C11]/90 p-4 sm:p-5 space-y-3 shadow-xs"
-          >
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-2 font-mono">
-                <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-white/[0.06] px-2 py-0.5 rounded border border-zinc-200 dark:border-white/[0.08]">
-                  {item.id}
-                </span>
-                <span className="text-xs font-bold text-indigo-700 dark:text-indigo-400">
-                  Target: {item.findingId}
-                </span>
-                <span className="flex items-center gap-1 text-[11px] text-zinc-600 dark:text-zinc-300 bg-teal-50/60 dark:bg-teal-500/[0.08] px-2 py-0.5 rounded border border-teal-200 dark:border-teal-500/20 font-sans">
+      {/* 2-Pane Layout: Table (Left) + Clean Preview (Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+        {/* Left: Sources List */}
+        <div className="lg:col-span-6 space-y-2">
+          {evidenceList.map((item) => {
+            const isSelected = selectedEvidenceId === item.id;
+            return (
+              <div
+                key={item.id}
+                onClick={() => setSelectedEvidenceId(item.id)}
+                className={`p-4 rounded-xl clay-card border cursor-pointer transition-all space-y-1 ${
+                  isSelected
+                    ? "bg-indigo-50/60 dark:bg-indigo-950/30 border-indigo-300 dark:border-indigo-800/50 shadow-xs"
+                    : "bg-[var(--bg-surface)] border-[var(--border-subtle)] hover:border-indigo-200"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-xs font-bold text-indigo-600">
+                      {item.id}
+                    </span>
+                    <span className="text-xs text-[var(--text-muted)] font-mono">
+                      for {item.findingId}
+                    </span>
+                  </div>
+                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300 font-semibold">
+                    Verified
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2 pt-0.5">
                   {getSourceIcon(item.sourceType)}
-                  <span>{item.sourceType}</span>
-                </span>
-              </div>
+                  <span className="font-bold text-xs text-[var(--text-primary)]">
+                    {item.sourceName}
+                  </span>
+                </div>
 
-              <div className="flex items-center gap-3">
-                <span className="text-xs font-mono text-zinc-500">
-                  Confidence:{" "}
-                  <span className="text-emerald-700 dark:text-emerald-400 font-bold">{item.confidence}%</span>
-                </span>
-                <VerificationBadge status={item.verificationStatus} size="sm" />
-              </div>
-            </div>
-
-            <div>
-              <h4 className="text-xs font-mono text-zinc-700 dark:text-zinc-300 font-semibold mb-1">
-                Source: {item.sourceName}
-              </h4>
-              <p className="text-xs text-zinc-600 dark:text-zinc-400 font-sans leading-relaxed">
-                {item.summary}
-              </p>
-            </div>
-
-            {/* Raw Telemetry Block */}
-            <div className="rounded-lg border border-zinc-200 dark:border-white/[0.06] bg-zinc-50 dark:bg-[#06080C] p-3 text-xs font-mono text-zinc-800 dark:text-zinc-300 overflow-x-auto">
-              <span className="text-[10px] text-zinc-400 uppercase block mb-1 font-semibold">
-                Captured Ground-Truth Telemetry:
-              </span>
-              <pre className="whitespace-pre text-teal-700 dark:text-teal-400 text-xs">
-                {item.rawExcerpt}
-              </pre>
-            </div>
-
-            {/* Verifier Critique Verdict */}
-            <div className="p-3 rounded-lg bg-emerald-50/70 dark:bg-emerald-500/[0.04] border border-emerald-200 dark:border-emerald-500/20 text-xs flex items-start gap-2.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
-              <div>
-                <span className="text-[11px] font-mono font-semibold text-emerald-800 dark:text-emerald-400 block">
-                  Verifier Critic Verdict:
-                </span>
-                <p className="text-zinc-700 dark:text-zinc-300 font-sans text-xs mt-0.5 leading-relaxed">
-                  {item.verifierCritique}
+                <p className="text-xs text-[var(--text-secondary)] line-clamp-2">
+                  {item.summary}
                 </p>
               </div>
+            );
+          })}
+        </div>
+
+        {/* Right: Selected Evidence Inspector */}
+        <div className="lg:col-span-6 p-5 rounded-2xl clay-card bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-4">
+          <div className="pb-3 border-b border-[var(--border-subtle)]">
+            <span className="text-[10px] font-mono text-[var(--text-muted)] uppercase font-semibold block">
+              Source Details: {selectedEvidence.id}
+            </span>
+            <h4 className="text-base font-bold text-[var(--text-primary)] mt-0.5">
+              {selectedEvidence.sourceName}
+            </h4>
+            <span className="text-xs text-indigo-600 font-mono">
+              Type: {selectedEvidence.sourceType} • Finding: {selectedEvidence.findingId}
+            </span>
+          </div>
+
+          <div>
+            <h5 className="text-xs font-semibold text-[var(--text-muted)] uppercase font-mono mb-1">
+              Summary of Finding
+            </h5>
+            <p className="text-xs text-[var(--text-primary)] leading-relaxed bg-[var(--bg-subtle)] p-3.5 rounded-xl border border-[var(--border-subtle)]">
+              {selectedEvidence.summary}
+            </p>
+          </div>
+
+          <div>
+            <h5 className="text-xs font-semibold text-[var(--text-muted)] uppercase font-mono mb-1">
+              Official Excerpt / Code Evidence
+            </h5>
+            <div className="p-3.5 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] font-mono text-xs text-[var(--text-primary)] overflow-x-auto">
+              <pre className="whitespace-pre-wrap">{selectedEvidence.rawExcerpt}</pre>
             </div>
           </div>
-        ))}
+        </div>
       </div>
     </div>
   );

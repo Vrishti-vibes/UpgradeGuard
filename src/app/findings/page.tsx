@@ -5,15 +5,17 @@ import Link from "next/link";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { RiskBadge } from "@/components/ui/RiskBadge";
-import { VerificationBadge } from "@/components/ui/VerificationBadge";
+import { FindingDetailsModal } from "@/components/ui/Modals";
 import { DEMO_FINDINGS } from "@/lib/demoData";
-import { ShieldCheck, ArrowRight, Code2 } from "lucide-react";
+import { Finding } from "@/types";
+import { ArrowRight, Code2, FileCode, CheckCircle2 } from "lucide-react";
 
 export default function FindingsPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [selectedFinding, setSelectedFinding] = useState<Finding | null>(null);
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-[var(--bg-base)]">
       <Sidebar
         mobileOpen={mobileMenuOpen}
         onCloseMobile={() => setMobileMenuOpen(false)}
@@ -22,71 +24,71 @@ export default function FindingsPage() {
       <div className="flex-1 flex flex-col min-w-0">
         <Header
           onToggleMobileMenu={() => setMobileMenuOpen(true)}
-          title="Findings"
-          subtitle="Grounded Deprecations"
+          title="UpgradeGuard"
+          subtitle="Findings Catalog"
         />
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-6">
-          <div className="p-5 sm:p-6 rounded-xl surface-card shadow-glass-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto w-full space-y-6">
+          <div className="p-6 rounded-2xl clay-card bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-zinc-950 dark:text-white tracking-tight font-sans">
-                Global Findings Catalog
+              <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] tracking-tight font-sans">
+                Discovered Findings ({DEMO_FINDINGS.length})
               </h1>
-              <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1 font-sans">
-                Catalog of breaking changes, signature modifications, and deprecation patterns extracted by Change & Code Impact Agents.
+              <p className="text-xs text-[var(--text-secondary)] mt-1 font-sans">
+                Issues identified in your project files that need to be resolved before upgrading FastAPI.
               </p>
             </div>
 
-            <div className="flex items-center gap-2 text-xs font-mono text-emerald-800 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-200 dark:border-emerald-500/20 font-semibold">
-              <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <span>Grounded with AST Call Sites</span>
+            <div className="flex items-center gap-2 text-xs text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950/30 px-3 py-1.5 rounded-xl border border-green-200 dark:border-green-800/40 font-semibold font-sans">
+              <CheckCircle2 className="w-4 h-4 text-green-600" />
+              <span>Verified by AI Analysis</span>
             </div>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-3 font-sans">
             {DEMO_FINDINGS.map((finding) => (
               <div
                 key={finding.id}
-                className="p-5 rounded-xl border border-zinc-200 dark:border-white/[0.08] bg-white dark:bg-[#0A0C11]/90 shadow-xs space-y-3 hover:border-zinc-300 dark:hover:border-white/[0.14] transition-all"
+                className="p-5 rounded-2xl clay-card bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-3 hover:border-indigo-300 transition-all"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 font-mono">
-                    <span className="text-xs font-bold text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-200 dark:border-indigo-500/20">
+                  <div className="flex items-center gap-2">
+                    <RiskBadge severity={finding.severity} size="sm" />
+                    <span className="text-xs font-mono font-bold text-indigo-600">
                       {finding.id}
                     </span>
-                    <RiskBadge level={finding.severity} size="sm" />
-                    <VerificationBadge status={finding.status} size="sm" />
-                    <span className="text-[11px] text-zinc-500 font-sans">
+                    <span className="text-xs text-[var(--text-muted)]">
                       {finding.category}
                     </span>
                   </div>
 
-                  <Link
-                    href="/analysis/fastapi-demo"
-                    className="inline-flex items-center gap-1 text-xs font-sans text-indigo-600 dark:text-indigo-400 hover:underline font-medium"
+                  <button
+                    onClick={() => setSelectedFinding(finding)}
+                    className="text-xs font-semibold text-indigo-600 hover:underline cursor-pointer"
                   >
-                    <span>View in Dashboard</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
+                    View Code Solution →
+                  </button>
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 font-sans">
+                  <h3 className="text-base font-bold text-[var(--text-primary)]">
                     {finding.title}
                   </h3>
-                  <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1 font-sans leading-relaxed">
+                  <p className="text-xs text-[var(--text-secondary)] mt-1 leading-relaxed">
                     {finding.description}
                   </p>
                 </div>
 
-                <div className="pt-2 border-t border-zinc-100 dark:border-white/[0.04] flex flex-wrap items-center justify-between gap-3 text-xs font-mono text-zinc-600 dark:text-zinc-400">
+                <div className="pt-2.5 border-t border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-3 text-xs">
                   <div className="flex items-center gap-2">
-                    <Code2 className="w-3.5 h-3.5 text-zinc-400" />
-                    <span className="text-zinc-400">Affected API:</span>
-                    <code className="text-indigo-700 dark:text-indigo-300 font-semibold">{finding.affectedApi}</code>
+                    <span className="text-[var(--text-muted)]">Target API:</span>
+                    <code className="text-indigo-600 font-mono font-semibold bg-indigo-50 dark:bg-indigo-950/40 px-2 py-0.5 rounded-md">
+                      {finding.affectedApi}
+                    </code>
                   </div>
-                  <div className="text-zinc-500">
-                    Files: <span className="text-zinc-900 dark:text-zinc-200">{finding.affectedFiles.join(", ")}</span>
+                  <div className="text-[var(--text-secondary)] font-mono text-[11px] flex items-center gap-1.5">
+                    <FileCode className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+                    <span>{finding.affectedFiles.join(", ")}</span>
                   </div>
                 </div>
               </div>
@@ -94,6 +96,12 @@ export default function FindingsPage() {
           </div>
         </main>
       </div>
+
+      <FindingDetailsModal
+        finding={selectedFinding}
+        isOpen={Boolean(selectedFinding)}
+        onClose={() => setSelectedFinding(null)}
+      />
     </div>
   );
 }

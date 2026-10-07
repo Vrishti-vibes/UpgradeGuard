@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
-import { Menu, GitBranch, ArrowUpRight, Terminal } from "lucide-react";
+import { Menu, GitBranch, Plus, ArrowUpRight, Search } from "lucide-react";
+import { CommandPalette } from "@/components/ui/CommandPalette";
 
 interface HeaderProps {
   onToggleMobileMenu?: () => void;
@@ -16,57 +17,84 @@ export function Header({
   title = "UpgradeGuard",
   subtitle,
 }: HeaderProps) {
+  const [isCommandOpen, setIsCommandOpen] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setIsCommandOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between h-14 px-4 sm:px-6 bg-white/80 dark:bg-[#08090C]/80 backdrop-blur-md border-b border-zinc-200/80 dark:border-white/[0.06] transition-colors">
-      <div className="flex items-center gap-3">
-        <button
-          onClick={onToggleMobileMenu}
-          className="p-1.5 rounded-md text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/[0.08] lg:hidden"
-          aria-label="Open navigation menu"
-        >
-          <Menu className="w-5 h-5" />
-        </button>
+    <>
+      <header className="sticky top-0 z-30 flex items-center justify-between h-13 px-4 sm:px-6 bg-[var(--bg-surface)] hairline-b text-xs select-none">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onToggleMobileMenu}
+            className="p-1.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] lg:hidden cursor-pointer rounded-md hover:bg-[var(--bg-subtle)]"
+            aria-label="Open navigation menu"
+          >
+            <Menu className="w-4 h-4" />
+          </button>
 
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 font-sans">
-          <span className="font-semibold text-sm text-zinc-900 dark:text-zinc-100">{title}</span>
-          {subtitle && (
-            <>
-              <span className="text-zinc-400 dark:text-zinc-600 text-xs">/</span>
-              <span className="text-xs text-zinc-600 dark:text-zinc-400 font-mono hidden sm:inline-block">
-                {subtitle}
-              </span>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Right controls */}
-      <div className="flex items-center gap-3">
-        <div className="hidden md:flex items-center gap-2 px-2.5 py-1 rounded-md bg-zinc-100/70 dark:bg-white/[0.03] border border-zinc-200/80 dark:border-white/[0.06] text-xs text-zinc-600 dark:text-zinc-400 font-mono">
-          <GitBranch className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500" />
-          <span>fastapi-commerce-api:main</span>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-sm text-[var(--text-primary)] tracking-tight font-sans">
+              {title}
+            </span>
+            {subtitle && (
+              <>
+                <span className="text-[var(--text-muted)] font-mono">/</span>
+                <span className="text-xs text-[var(--text-secondary)] font-sans">
+                  {subtitle}
+                </span>
+              </>
+            )}
+          </div>
         </div>
 
-        <Link
-          href="/architecture"
-          className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-sans font-medium text-zinc-700 dark:text-zinc-300 hover:text-indigo-600 dark:hover:text-indigo-300 bg-zinc-100/80 dark:bg-white/[0.04] hover:bg-zinc-200/80 dark:hover:bg-white/[0.08] border border-zinc-200/80 dark:border-white/[0.08] transition-all"
-        >
-          <span>Architecture DAG</span>
-          <ArrowUpRight className="w-3.5 h-3.5 text-zinc-400" />
-        </Link>
+        {/* Center/Right Repository Context & Quick Action */}
+        <div className="flex items-center gap-3 font-sans">
+          {/* Quick Search */}
+          <button
+            onClick={() => setIsCommandOpen(true)}
+            className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--bg-subtle)] hover:bg-[var(--bg-base)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)] transition-colors cursor-pointer"
+          >
+            <Search className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+            <span>Search project...</span>
+            <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[10px] font-mono text-[var(--text-muted)]">
+              ⌘K
+            </kbd>
+          </button>
 
-        {/* Theme Toggle Button */}
-        <ThemeToggle />
+          <div className="hidden md:flex items-center gap-2 px-2.5 py-1 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)]">
+            <GitBranch className="w-3.5 h-3.5 text-indigo-500" />
+            <span className="font-mono text-[11px]">fastapi-commerce-api</span>
+            <span className="text-green-600 font-medium flex items-center gap-1 text-[11px]">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+              Connected
+            </span>
+          </div>
 
-        <Link
-          href="/new"
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 shadow-sm shadow-indigo-600/20 transition-all font-sans"
-        >
-          <Terminal className="w-3.5 h-3.5" />
-          <span>New Analysis</span>
-        </Link>
-      </div>
-    </header>
+          {/* Theme Toggle */}
+          <ThemeToggle />
+
+          <Link
+            href="/new"
+            className="clay-btn flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-500 transition-colors"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>New Analysis</span>
+          </Link>
+        </div>
+      </header>
+
+      {/* Global Search Palette */}
+      <CommandPalette isOpen={isCommandOpen} onClose={() => setIsCommandOpen(false)} />
+    </>
   );
 }

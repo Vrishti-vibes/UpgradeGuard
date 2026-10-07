@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export interface TabItem {
@@ -21,7 +22,7 @@ export function Tabs({ tabs, activeTab, onChange, className }: TabsProps) {
   return (
     <div
       className={cn(
-        "flex items-center gap-1 border-b border-zinc-200 dark:border-white/[0.08] overflow-x-auto no-scrollbar py-0.5",
+        "flex items-center gap-1 border-b border-[var(--border-subtle)] overflow-x-auto no-scrollbar py-0.5 relative",
         className
       )}
     >
@@ -32,17 +33,17 @@ export function Tabs({ tabs, activeTab, onChange, className }: TabsProps) {
             key={tab.id}
             onClick={() => onChange(tab.id)}
             className={cn(
-              "flex items-center gap-2 px-3.5 py-2 text-xs font-sans rounded-md transition-all whitespace-nowrap relative select-none",
+              "flex items-center gap-2 px-3 py-1.5 text-xs font-sans rounded-t transition-colors whitespace-nowrap relative select-none cursor-pointer",
               isActive
-                ? "text-zinc-900 dark:text-white font-semibold bg-zinc-100 dark:bg-white/[0.08] shadow-sm"
-                : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-black/[0.03] dark:hover:bg-white/[0.03]"
+                ? "text-[var(--text-primary)] font-medium bg-[var(--bg-subtle)] shadow-2xs"
+                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
             )}
           >
             {tab.icon && (
               <span
                 className={cn(
                   "transition-colors",
-                  isActive ? "text-indigo-600 dark:text-indigo-400" : "text-zinc-400 dark:text-zinc-500"
+                  isActive ? "text-blue-500" : "text-[var(--text-muted)]"
                 )}
               >
                 {tab.icon}
@@ -52,17 +53,22 @@ export function Tabs({ tabs, activeTab, onChange, className }: TabsProps) {
             {tab.badge !== undefined && (
               <span
                 className={cn(
-                  "text-[10px] px-1.5 py-0.5 rounded-full font-mono font-medium",
+                  "text-[10px] px-1.5 py-0.2 rounded font-mono transition-colors",
                   isActive
-                    ? "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border border-indigo-500/25"
-                    : "bg-zinc-200/70 dark:bg-white/[0.06] text-zinc-600 dark:text-zinc-400"
+                    ? "bg-blue-500/15 text-blue-500 border border-blue-500/25 font-semibold"
+                    : "bg-[var(--bg-surface)] text-[var(--text-muted)] border border-[var(--border-subtle)]"
                 )}
               >
                 {tab.badge}
               </span>
             )}
+
             {isActive && (
-              <span className="absolute bottom-0 left-2 right-2 h-[2px] bg-indigo-600 dark:bg-indigo-400 rounded-full" />
+              <motion.span
+                layoutId="activeTabIndicator"
+                className="absolute bottom-0 left-0 right-0 h-[2px] bg-blue-500 rounded-t-xs"
+                transition={{ type: "spring", stiffness: 450, damping: 35 }}
+              />
             )}
           </button>
         );

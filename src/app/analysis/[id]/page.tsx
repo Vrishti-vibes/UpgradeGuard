@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { useParams } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { useParams, useSearchParams } from "next/navigation";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { RiskBadge } from "@/components/ui/RiskBadge";
@@ -40,11 +40,19 @@ import {
 
 export default function AnalysisResultsPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("overview");
   const [selectedFilePath, setSelectedFilePath] = useState<string>("src/auth.py");
   const [isExported, setIsExported] = useState(false);
   const [isPrCreated, setIsPrCreated] = useState(false);
+
+  useEffect(() => {
+    const tabFromUrl = searchParams.get("tab");
+    if (tabFromUrl && ["overview", "breaking", "impact", "dependencies", "security", "migration", "tests", "evidence"].includes(tabFromUrl)) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [searchParams]);
 
   const tabs: TabItem[] = [
     {
@@ -121,7 +129,7 @@ export default function AnalysisResultsPage() {
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-[var(--bg-base)]">
       <Sidebar
         mobileOpen={mobileMenuOpen}
         onCloseMobile={() => setMobileMenuOpen(false)}
@@ -131,60 +139,60 @@ export default function AnalysisResultsPage() {
         <Header
           onToggleMobileMenu={() => setMobileMenuOpen(true)}
           title="Analysis Report"
-          subtitle="FastAPI 0.110.0 → 0.120.0"
+          subtitle="FastAPI: 0.110.0 → 0.120.0"
         />
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-6">
-          {/* HEADER STRIP */}
-          <div className="surface-card rounded-xl p-5 sm:p-6 space-y-4 shadow-glass-sm">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto w-full space-y-6">
+          {/* Clean Header Box */}
+          <div className="p-6 rounded-2xl clay-card bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-4">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               <div>
-                <div className="flex items-center gap-2 mb-1.5 font-mono">
-                  <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 font-mono">
                     REPORT #ANA-8821
                   </span>
-                  <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-100 dark:bg-white/[0.05] text-zinc-600 dark:text-zinc-400 font-sans">
+                  <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[var(--bg-subtle)] text-[var(--text-secondary)] font-sans">
                     Repository: {DEMO_ANALYSIS_SUMMARY.repository}
                   </span>
-                  <span className="text-[10px] text-zinc-400 hidden sm:inline">
-                    Branch: {DEMO_ANALYSIS_SUMMARY.branch} ({DEMO_ANALYSIS_SUMMARY.commitHash})
+                  <span className="text-[11px] text-[var(--text-muted)] font-mono">
+                    branch: {DEMO_ANALYSIS_SUMMARY.branch}
                   </span>
                 </div>
 
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-950 dark:text-white tracking-tight flex items-center gap-3 font-sans">
-                  <span>FastAPI</span>
-                  <span className="text-sm font-mono font-normal text-zinc-400">
+                <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] tracking-tight flex items-center gap-3 font-sans">
+                  <span>FastAPI Upgrade Impact</span>
+                  <span className="text-sm font-mono font-normal text-[var(--text-muted)]">
                     {DEMO_ANALYSIS_SUMMARY.currentVersion}
                   </span>
-                  <span className="text-zinc-300 dark:text-zinc-600">→</span>
-                  <span className="text-sm font-mono font-semibold text-indigo-600 dark:text-indigo-400">
+                  <span className="text-indigo-500 font-bold text-sm">→</span>
+                  <span className="text-sm font-mono font-bold text-indigo-600 dark:text-indigo-400">
                     {DEMO_ANALYSIS_SUMMARY.targetVersion}
                   </span>
                 </h1>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
+              <div className="flex flex-wrap items-center gap-2.5 font-sans text-xs">
                 <button
                   onClick={handleExport}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-white/[0.04] dark:hover:bg-white/[0.08] text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white border border-zinc-200 dark:border-white/[0.08] transition-colors cursor-pointer"
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--bg-subtle)] hover:bg-[var(--bg-base)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)] transition-colors cursor-pointer"
                 >
                   {isExported ? (
                     <>
-                      <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                      <span className="text-emerald-600 dark:text-emerald-400 font-sans">Exported</span>
+                      <Check className="w-3.5 h-3.5 text-green-500" />
+                      <span className="text-green-600 font-medium">Exported</span>
                     </>
                   ) : (
                     <>
-                      <Download className="w-3.5 h-3.5 text-zinc-500" />
-                      <span className="font-sans">Export JSON</span>
+                      <Download className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+                      <span>Export JSON</span>
                     </>
                   )}
                 </button>
 
                 <button
                   onClick={handleCreatePr}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm shadow-indigo-600/20 transition-all font-semibold font-sans cursor-pointer"
+                  className="clay-btn flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white transition-all font-medium cursor-pointer shadow-md shadow-indigo-600/25"
                 >
                   {isPrCreated ? (
                     <>
@@ -201,27 +209,27 @@ export default function AnalysisResultsPage() {
               </div>
             </div>
 
-            {/* Quick Compact Risk & Reasons Strip */}
-            <div className="pt-3 border-t border-zinc-200/80 dark:border-white/[0.06] flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs font-mono">
+            {/* Quick Summary Strip */}
+            <div className="pt-3 border-t border-[var(--border-subtle)] flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
               <div className="flex items-center gap-3">
                 <RiskBadge
-                  level={DEMO_ANALYSIS_SUMMARY.riskLevel}
+                  severity={DEMO_ANALYSIS_SUMMARY.riskLevel}
                   score={DEMO_ANALYSIS_SUMMARY.riskScore}
                   size="md"
                 />
-                <span className="text-zinc-500 font-sans text-xs">
-                  Synthesized by Risk Engine & Verified by Critic Loop
+                <span className="text-[var(--text-secondary)] font-sans">
+                  Analyzed by 4 specialized AI agents
                 </span>
               </div>
 
-              <div className="flex flex-wrap items-center gap-3 text-zinc-600 dark:text-zinc-400 font-sans">
-                <span className="text-rose-600 dark:text-rose-400 font-semibold font-mono">2 breaking changes</span>
+              <div className="flex flex-wrap items-center gap-3 text-[var(--text-secondary)] font-sans">
+                <span className="text-red-600 font-bold font-mono">2 breaking changes</span>
                 <span>•</span>
-                <span className="text-zinc-900 dark:text-zinc-200 font-medium font-mono">4 affected files</span>
+                <span className="text-[var(--text-primary)] font-medium font-mono">4 affected files</span>
                 <span>•</span>
-                <span className="text-rose-600 dark:text-rose-400 font-semibold font-mono">1 dependency conflict</span>
+                <span className="text-amber-600 font-semibold font-mono">1 lockfile conflict</span>
                 <span>•</span>
-                <span className="text-indigo-600 dark:text-indigo-400 font-semibold font-mono">1 migration requirement</span>
+                <span className="text-green-600 font-semibold font-mono">1 security fix</span>
               </div>
             </div>
           </div>

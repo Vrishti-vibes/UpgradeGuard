@@ -29,25 +29,25 @@ export default function SettingsPage() {
         <Header
           onToggleMobileMenu={() => setMobileMenuOpen(true)}
           title="Settings"
-          subtitle="Agent Engine Parameters"
+          subtitle="System Preferences"
         />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto w-full space-y-6">
-          <div className="p-5 sm:p-6 rounded-xl surface-card shadow-glass-sm">
-            <h1 className="text-xl sm:text-2xl font-bold text-zinc-950 dark:text-white tracking-tight font-sans">
-              System Configuration
+          <div className="p-5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-sm">
+            <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight font-sans">
+              System Settings
             </h1>
-            <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1 font-sans">
-              Fine-tune theme preferences, adversarial critic thresholds, AST parser depth, and vulnerability scanner parameters.
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 font-sans">
+              Configure appearance, AI verification confidence thresholds, and vulnerability scanner parameters.
             </p>
           </div>
 
-          <div className="surface-card rounded-xl p-6 sm:p-7 space-y-6 shadow-glass-sm font-mono text-xs">
+          <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-6 space-y-6 shadow-sm">
             {/* Theme Preference Setting */}
-            <div className="space-y-3 pb-6 border-b border-zinc-200/80 dark:border-white/[0.06]">
+            <div className="space-y-3 pb-6 border-b border-[var(--border-subtle)]">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <label className="text-zinc-900 dark:text-zinc-200 font-bold uppercase tracking-wider text-[11px] flex items-center gap-2 font-sans">
+                  <label className="text-zinc-900 dark:text-zinc-100 font-bold uppercase tracking-wider text-[11px] flex items-center gap-2 font-sans">
                     <SunMoon className="w-4 h-4 text-indigo-500" />
                     <span>Theme Appearance</span>
                   </label>
@@ -60,14 +60,14 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            {/* Critic threshold slider */}
-            <div className="space-y-2">
+            {/* Verification confidence slider */}
+            <div className="space-y-2.5">
               <div className="flex items-center justify-between">
-                <label className="text-zinc-900 dark:text-zinc-200 font-bold uppercase tracking-wider text-[11px] flex items-center gap-2 font-sans">
+                <label className="text-zinc-900 dark:text-zinc-100 font-bold uppercase tracking-wider text-[11px] flex items-center gap-2 font-sans">
                   <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                  <span>Verifier / Critic Confidence Floor</span>
+                  <span>AI Verification Confidence Threshold</span>
                 </label>
-                <span className="text-emerald-700 dark:text-emerald-400 font-bold font-mono text-sm">{criticConfidence}%</span>
+                <span className="text-emerald-700 dark:text-emerald-400 font-bold font-mono text-sm px-2.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20">{criticConfidence}%</span>
               </div>
               <input
                 type="range"
@@ -77,19 +77,19 @@ export default function SettingsPage() {
                 onChange={(e) => setCriticConfidence(Number(e.target.value))}
                 className="w-full accent-indigo-600 cursor-pointer"
               />
-              <p className="text-[11px] text-zinc-500 font-sans">
-                Candidate findings below this threshold trigger an automatic critique loop and are not surfaced as VERIFIED.
+              <p className="text-xs text-zinc-500 font-sans">
+                Findings with confidence below this threshold require additional validation before being reported as verified.
               </p>
             </div>
 
-            {/* AST call graph depth */}
-            <div className="pt-4 border-t border-zinc-200/80 dark:border-white/[0.06] space-y-2">
+            {/* Code analysis depth */}
+            <div className="pt-5 border-t border-[var(--border-subtle)] space-y-2.5">
               <div className="flex items-center justify-between">
-                <label className="text-zinc-900 dark:text-zinc-200 font-bold uppercase tracking-wider text-[11px] flex items-center gap-2 font-sans">
+                <label className="text-zinc-900 dark:text-zinc-100 font-bold uppercase tracking-wider text-[11px] flex items-center gap-2 font-sans">
                   <Terminal className="w-4 h-4 text-indigo-500" />
-                  <span>Max AST Static Call Traversal Depth</span>
+                  <span>Code Impact Search Depth</span>
                 </label>
-                <span className="text-indigo-700 dark:text-indigo-400 font-bold font-mono text-sm">{maxAstDepth} Levels</span>
+                <span className="text-indigo-700 dark:text-indigo-400 font-bold font-mono text-sm px-2.5 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20">{maxAstDepth} Levels</span>
               </div>
               <input
                 type="range"
@@ -99,19 +99,19 @@ export default function SettingsPage() {
                 onChange={(e) => setMaxAstDepth(Number(e.target.value))}
                 className="w-full accent-indigo-600 cursor-pointer"
               />
-              <p className="text-[11px] text-zinc-500 font-sans">
-                Controls recursive traversal through wrapper functions and dependency injection dependencies.
+              <p className="text-xs text-zinc-500 font-sans">
+                Controls how deeply the Code Impact Agent traverses function calls and repository dependencies.
               </p>
             </div>
 
-            {/* OSV Advisory query timeout */}
-            <div className="pt-4 border-t border-zinc-200/80 dark:border-white/[0.06] space-y-2">
+            {/* Advisory query timeout */}
+            <div className="pt-5 border-t border-[var(--border-subtle)] space-y-2.5">
               <div className="flex items-center justify-between">
-                <label className="text-zinc-900 dark:text-zinc-200 font-bold uppercase tracking-wider text-[11px] flex items-center gap-2 font-sans">
+                <label className="text-zinc-900 dark:text-zinc-100 font-bold uppercase tracking-wider text-[11px] flex items-center gap-2 font-sans">
                   <Database className="w-4 h-4 text-rose-500" />
-                  <span>OSV / CVE Query Timeout</span>
+                  <span>Security Advisory Timeout</span>
                 </label>
-                <span className="text-rose-700 dark:text-rose-400 font-bold font-mono text-sm">{osvTimeout}s</span>
+                <span className="text-rose-700 dark:text-rose-400 font-bold font-mono text-sm px-2.5 py-0.5 rounded-md bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20">{osvTimeout}s</span>
               </div>
               <input
                 type="range"
@@ -121,21 +121,24 @@ export default function SettingsPage() {
                 onChange={(e) => setOsvTimeout(Number(e.target.value))}
                 className="w-full accent-indigo-600 cursor-pointer"
               />
+              <p className="text-xs text-zinc-500 font-sans">
+                Maximum time allotted for querying vulnerability databases and security feeds.
+              </p>
             </div>
 
             {/* Save Button */}
-            <div className="pt-4 border-t border-zinc-200/80 dark:border-white/[0.06] flex justify-end font-sans">
+            <div className="pt-5 border-t border-[var(--border-subtle)] flex justify-end font-sans">
               <button
                 onClick={handleSave}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 shadow-sm transition-all cursor-pointer"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition-colors shadow-sm cursor-pointer"
               >
                 {saved ? (
                   <>
-                    <Check className="w-3.5 h-3.5" />
+                    <Check className="w-4 h-4" />
                     <span>Configuration Saved</span>
                   </>
                 ) : (
-                  <span>Save Configuration</span>
+                  <span>Save Changes</span>
                 )}
               </button>
             </div>

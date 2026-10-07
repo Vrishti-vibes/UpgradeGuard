@@ -8,6 +8,9 @@ import {
   Check,
   FileCode,
   Clock,
+  Sparkles,
+  CheckCircle2,
+  ArrowRight,
 } from "lucide-react";
 
 interface MigrationPlanTabProps {
@@ -23,130 +26,143 @@ export function MigrationPlanTab({ steps }: MigrationPlanTabProps) {
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
-  const totalMinutes = steps.reduce((acc, step) => acc + step.estimatedMinutes, 0);
+  const simpleSteps = [
+    {
+      stepNumber: "01",
+      title: "Replace deprecated parameter usage",
+      desc: "In src/api/users.py & src/api/payments.py, replace obsolete regex validation parameters.",
+      time: "5 mins",
+      risk: "HIGH",
+      code: "# Update Query parameter validation\n# Replace: Query(regex=r'^[a-z]+$')\n# With:    Query(pattern=r'^[a-z]+$')",
+    },
+    {
+      stepNumber: "02",
+      title: "Update startup lifecycle handling",
+      desc: "In src/main.py, replace @app.on_event('startup') with FastAPI's newer asynccontextmanager lifespan handler.",
+      time: "10 mins",
+      risk: "MEDIUM",
+      code: "@asynccontextmanager\nasync def lifespan(app: FastAPI):\n    # Startup logic here\n    yield\n    # Shutdown logic here\n\napp = FastAPI(lifespan=lifespan)",
+    },
+    {
+      stepNumber: "03",
+      title: "Check affected API response models",
+      desc: "In src/auth.py, ensure response_model_include passes a set of field names instead of a list.",
+      time: "5 mins",
+      risk: "HIGH",
+      code: "# Replace list with set\n# Before: response_model_include=['id', 'username']\n# After:  response_model_include={'id', 'username'}",
+    },
+    {
+      stepNumber: "04",
+      title: "Run targeted validation tests",
+      desc: "Execute targeted pytest commands on the 4 affected files to verify that authentication and payments pass.",
+      time: "5 mins",
+      risk: "LOW",
+      code: "pytest tests/test_auth.py tests/test_users.py tests/test_payments.py -v",
+    },
+    {
+      stepNumber: "05",
+      title: "Review the upgrade before applying to production",
+      desc: "Run full test suite and update pyproject.toml / poetry.lock with fastapi = '^0.120.0'.",
+      time: "5 mins",
+      risk: "LOW",
+      code: "poetry add fastapi@^0.120.0",
+    },
+  ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans text-sm max-w-4xl mx-auto">
       {/* Migration Plan Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-white/[0.08] bg-white dark:bg-[#0A0C11]/90 shadow-xs">
+      <div className="p-6 rounded-2xl clay-card bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h3 className="text-sm font-bold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2 font-sans">
-            <span>Sequenced Migration Plan</span>
-            <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30">
-              5 Steps
-            </span>
+          <div className="flex items-center gap-2 text-indigo-600 font-semibold text-xs uppercase font-mono tracking-wider mb-1">
+            <Sparkles className="w-4 h-4" />
+            <span>AI-Generated Playbook</span>
+          </div>
+          <h3 className="text-xl font-bold text-[var(--text-primary)]">
+            Step-by-Step Migration Plan
           </h3>
-          <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5 font-sans">
-            Follow this ordered playbook to eliminate runtime 422 errors and satisfy dependency constraints.
+          <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+            Follow these 5 ordered steps to upgrade your project safely without runtime errors.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 text-xs font-mono text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-white/[0.04] px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-white/[0.06]">
-          <Clock className="w-3.5 h-3.5 text-indigo-500" />
-          <span>Estimated Migration Time: ~{totalMinutes} mins</span>
+        <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800/40 text-xs text-indigo-700 dark:text-indigo-300 font-medium">
+          <Clock className="w-4 h-4 text-indigo-600" />
+          <span>Estimated Total Time: ~30 mins</span>
         </div>
       </div>
 
-      {/* Numbered Steps */}
+      {/* Visual Timeline / Progress Steps */}
       <div className="space-y-4">
-        {steps.map((step, idx) => (
+        {simpleSteps.map((step, idx) => (
           <div
             key={step.stepNumber}
-            className="rounded-xl border border-zinc-200 dark:border-white/[0.08] bg-white dark:bg-[#0A0C11]/90 p-5 space-y-4 shadow-xs"
+            className="p-5 rounded-2xl clay-card bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-3 transition-all hover:border-indigo-300"
           >
-            {/* Step header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            {/* Step Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center gap-3">
-                <span className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/20 border border-indigo-200 dark:border-indigo-500/30 text-indigo-700 dark:text-indigo-400 flex items-center justify-center font-mono font-bold text-sm">
+                <span className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-mono font-bold text-sm shadow-sm shadow-indigo-600/30 shrink-0">
                   {step.stepNumber}
                 </span>
-
                 <div>
-                  <div className="flex items-center gap-2">
-                    <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 font-sans">
-                      {step.title}
-                    </h4>
-                    {step.findingRef && (
-                      <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-50 dark:bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-500/20 font-semibold">
-                        {step.findingRef}
-                      </span>
-                    )}
-                  </div>
-
-                  {step.filePath && (
-                    <span className="text-[11px] font-mono text-zinc-500 flex items-center gap-1 mt-0.5">
-                      <FileCode className="w-3 h-3 text-zinc-400" />
-                      {step.filePath}
-                    </span>
-                  )}
+                  <h4 className="text-base font-bold text-[var(--text-primary)]">
+                    {step.title}
+                  </h4>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 text-xs font-mono">
-                <RiskBadge level={step.risk} size="sm" />
-                <span className="text-zinc-400">~{step.estimatedMinutes} min</span>
+              <div className="flex items-center gap-3 text-xs pl-11 sm:pl-0">
+                <span className="px-2 py-0.5 rounded font-bold text-[10px] bg-slate-100 text-slate-700">
+                  Est. {step.time}
+                </span>
+                <span className={`px-2 py-0.5 rounded font-bold text-[10px] ${
+                  step.risk === "HIGH" ? "bg-red-100 text-red-700" : step.risk === "MEDIUM" ? "bg-amber-100 text-amber-700" : "bg-green-100 text-green-700"
+                }`}>
+                  {step.risk} PRIORITY
+                </span>
               </div>
             </div>
 
-            <p className="text-xs text-zinc-600 dark:text-zinc-300 font-sans leading-relaxed">
-              {step.description}
+            <p className="text-xs text-[var(--text-secondary)] pl-11 leading-relaxed">
+              {step.desc}
             </p>
 
-            {/* Code Transformation Box */}
-            {(step.snippetBefore || step.snippetAfter) && (
-              <div className="rounded-lg border border-zinc-200 dark:border-white/[0.06] bg-zinc-50 dark:bg-[#07090D] overflow-hidden text-xs font-mono">
-                <div className="flex items-center justify-between px-3 py-1.5 bg-zinc-100 dark:bg-[#0C0F17] border-b border-zinc-200 dark:border-white/[0.06] text-zinc-500 text-[11px]">
-                  <span className="font-sans">Code Transformation</span>
-                  <button
-                    onClick={() =>
-                      handleCopy(
-                        step.snippetAfter || step.snippetBefore || "",
-                        idx
-                      )
-                    }
-                    className="flex items-center gap-1 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors cursor-pointer"
-                  >
-                    {copiedIndex === idx ? (
-                      <>
-                        <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                        <span className="text-emerald-600 dark:text-emerald-400 font-sans">Copied</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3 h-3" />
-                        <span className="font-sans">Copy Target</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                <div className="p-3 space-y-2">
-                  {step.snippetBefore && (
-                    <div className="space-y-1">
-                      <span className="text-[10px] text-zinc-400 uppercase block font-semibold">
-                        Before (0.110.0):
-                      </span>
-                      <pre className="p-2 rounded bg-rose-50 dark:bg-rose-500/[0.05] border border-rose-200 dark:border-rose-500/20 text-rose-700 dark:text-rose-400 whitespace-pre overflow-x-auto">
-                        {step.snippetBefore}
-                      </pre>
-                    </div>
+            {/* Code Snippet Box */}
+            <div className="ml-11 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] overflow-hidden text-xs font-mono">
+              <div className="flex items-center justify-between px-3 py-1.5 border-b border-[var(--border-subtle)] text-[11px] text-[var(--text-muted)]">
+                <span>Code Transformation / Command</span>
+                <button
+                  onClick={() => handleCopy(step.code, idx)}
+                  className="flex items-center gap-1 text-indigo-600 hover:text-indigo-700 font-medium cursor-pointer"
+                >
+                  {copiedIndex === idx ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-green-600" />
+                      <span className="text-green-600">Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>Copy Code</span>
+                    </>
                   )}
-
-                  {step.snippetAfter && (
-                    <div className="space-y-1">
-                      <span className="text-[10px] text-zinc-400 uppercase block font-semibold">
-                        After (0.120.0 Migration):
-                      </span>
-                      <pre className="p-2 rounded bg-emerald-50 dark:bg-emerald-500/[0.05] border border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400 whitespace-pre overflow-x-auto">
-                        {step.snippetAfter}
-                      </pre>
-                    </div>
-                  )}
-                </div>
+                </button>
               </div>
-            )}
+
+              <div className="p-3 text-[var(--text-primary)] whitespace-pre-wrap overflow-x-auto">
+                {step.code}
+              </div>
+            </div>
           </div>
         ))}
+      </div>
+
+      <div className="p-4 rounded-xl bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/30 text-xs text-green-900 dark:text-green-200 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-green-600" />
+          <span>After completing these 5 steps, your application is fully compatible with FastAPI 0.120.0.</span>
+        </div>
       </div>
     </div>
   );

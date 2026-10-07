@@ -5,28 +5,64 @@ import Link from "next/link";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { RiskBadge } from "@/components/ui/RiskBadge";
-import { DEMO_ANALYSIS_SUMMARY, DEMO_PREVIOUS_ANALYSES } from "@/lib/demoData";
+import { VerificationBadge } from "@/components/ui/VerificationBadge";
+import {
+  FindingDetailsModal,
+  RiskScoreModal,
+  AgentDetailsModal,
+  AgentDetailData,
+} from "@/components/ui/Modals";
+import {
+  DEMO_FINDINGS,
+} from "@/lib/demoData";
+import { Finding } from "@/types";
 import {
   ArrowRight,
-  ShieldCheck,
-  Terminal,
-  Cpu,
+  ShieldAlert,
+  FileCode,
+  CheckCircle2,
+  FileDiff,
+  Lock,
   GitFork,
   Code2,
-  FileDiff,
-  ShieldAlert,
-  ArrowUpRight,
+  Cpu,
   Sparkles,
-  Clock,
-  CheckCircle2,
-  FileSearch,
+  Info,
+  ChevronRight,
+  Play,
 } from "lucide-react";
 
 export default function OverviewPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [selectedFinding, setSelectedFinding] = useState<Finding | null>(null);
+  const [isRiskModalOpen, setIsRiskModalOpen] = useState(false);
+  const [selectedAgent, setSelectedAgent] = useState<AgentDetailData | null>(null);
+
+  const agentsList: AgentDetailData[] = [
+    {
+      name: "Dependency Agent",
+      purpose: "Checks package version numbers and looks for conflicts with other packages in your project.",
+      inputs: ["pyproject.toml and lockfiles", "Package version compatibility rules"],
+    },
+    {
+      name: "Change Analysis Agent",
+      purpose: "Inspects what changed between versions by reading release notes, changelogs, and code differences.",
+      inputs: ["FastAPI official release changelogs", "Version 0.110.0 to 0.120.0 code changes"],
+    },
+    {
+      name: "Code Impact Agent",
+      purpose: "Scans your repository files to find the exact lines of code that use deprecated or changed APIs.",
+      inputs: ["All 48 source code files in repository", "Function calls and imports"],
+    },
+    {
+      name: "Security Agent",
+      purpose: "Checks known vulnerability databases to verify if this upgrade fixes security issues.",
+      inputs: ["OSV & GitHub Advisory vulnerability records", "Security patch information"],
+    },
+  ];
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-[var(--bg-base)]">
       <Sidebar
         mobileOpen={mobileMenuOpen}
         onCloseMobile={() => setMobileMenuOpen(false)}
@@ -35,237 +71,332 @@ export default function OverviewPage() {
       <div className="flex-1 flex flex-col min-w-0">
         <Header
           onToggleMobileMenu={() => setMobileMenuOpen(true)}
-          title="Overview"
-          subtitle="Pre-Upgrade Intelligence"
+          title="UpgradeGuard"
+          subtitle="Dashboard"
         />
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-8 max-w-7xl mx-auto w-full">
-          {/* EDITORIAL ASYMMETRIC HERO SECTION */}
-          <div className="surface-card rounded-xl p-6 sm:p-8 lg:p-10 shadow-glass-md relative overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              {/* LEFT: Headline & Narrative (7 cols) */}
-              <div className="lg:col-span-7 space-y-5">
-                <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-zinc-100 dark:bg-white/[0.05] border border-zinc-200 dark:border-white/[0.08] text-zinc-700 dark:text-zinc-300 font-mono text-[11px] font-semibold tracking-wider uppercase">
-                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-                  <span>PRE-UPGRADE INTELLIGENCE</span>
+        {/* Main Clean Workspace */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-6xl w-full mx-auto space-y-6">
+          {/* Hero Welcome & Title */}
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 text-xs font-semibold">
+                AI Upgrade Assistant
+              </span>
+              <span className="text-xs text-[var(--text-muted)]">•</span>
+              <span className="text-xs text-green-600 font-medium flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                Analysis Ready
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] tracking-tight font-sans">
+              UpgradeGuard
+            </h1>
+            <p className="text-sm text-[var(--text-secondary)] font-sans max-w-2xl">
+              Understand what could break before you upgrade. Analyze dependency changes, repo impact, and get step-by-step migration guidance.
+            </p>
+          </div>
+
+          {/* Prominent Analysis Panel */}
+          <div className="p-5 sm:p-6 rounded-2xl clay-card bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-4 shadow-sm">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex items-center gap-4 sm:gap-6">
+                <div>
+                  <span className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider block mb-1">
+                    Current Version
+                  </span>
+                  <span className="text-lg sm:text-xl font-bold font-mono text-[var(--text-primary)] px-3 py-1 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)] inline-block">
+                    0.110.0
+                  </span>
                 </div>
 
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-zinc-950 dark:text-white leading-[1.15] font-sans">
-                  Know what your dependency upgrade could break —{" "}
-                  <span className="text-indigo-600 dark:text-indigo-400">
-                    before you upgrade.
+                <div className="text-indigo-500 font-bold text-xl pt-4">
+                  →
+                </div>
+
+                <div>
+                  <span className="text-[11px] font-semibold text-indigo-600 uppercase tracking-wider block mb-1">
+                    Target Upgrade
                   </span>
-                </h1>
+                  <span className="text-lg sm:text-xl font-bold font-mono text-indigo-600 dark:text-indigo-400 px-3 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/50 inline-block">
+                    0.120.0
+                  </span>
+                </div>
 
-                <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 leading-relaxed font-sans max-w-xl">
-                  UpgradeGuard connects package releases with repository-specific AST call sites, verifiable ground-truth evidence, and automated validation planning.
-                </p>
-
-                <div className="flex flex-wrap items-center gap-3 pt-2 font-sans">
-                  <Link
-                    href="/new"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 shadow-sm shadow-indigo-600/30 transition-all hover:-translate-y-0.5"
-                  >
-                    <Terminal className="w-4 h-4" />
-                    <span>Analyze an Upgrade</span>
-                  </Link>
-
-                  <Link
-                    href="/architecture"
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white bg-zinc-100 dark:bg-white/[0.05] hover:bg-zinc-200/70 dark:hover:bg-white/[0.08] border border-zinc-200 dark:border-white/[0.08] transition-all"
-                  >
-                    <span>View Architecture</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-zinc-400" />
-                  </Link>
-
-                  <Link
-                    href="/analysis/fastapi-demo"
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-mono font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
-                  >
-                    <span>Inspect FastAPI Demo →</span>
-                  </Link>
+                <div className="hidden lg:block pl-4 border-l border-[var(--border-subtle)]">
+                  <span className="text-[11px] font-medium text-[var(--text-muted)] block">Package</span>
+                  <span className="font-semibold text-sm text-[var(--text-primary)] font-mono">FastAPI</span>
                 </div>
               </div>
 
-              {/* RIGHT: Interactive Upgrade Intelligence Preview Card (5 cols) */}
-              <div className="lg:col-span-5 rounded-lg border border-zinc-200 dark:border-white/[0.1] bg-white dark:bg-[#0B0E15] p-5 shadow-lg space-y-4">
-                {/* Package Spec Header */}
-                <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-white/[0.06]">
-                  <div>
-                    <div className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">
-                      TARGET UPGRADE HOP
-                    </div>
-                    <div className="text-base font-bold text-zinc-900 dark:text-white font-mono flex items-center gap-2">
-                      <span>FastAPI</span>
-                      <span className="text-xs font-normal text-zinc-500">0.110.0</span>
-                      <span className="text-zinc-400">→</span>
-                      <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">0.120.0</span>
-                    </div>
-                  </div>
-                  <RiskBadge level="HIGH" score={72} size="sm" />
-                </div>
+              <div className="flex items-center gap-3">
+                <Link
+                  href="/analysis/fastapi-demo"
+                  className="clay-btn inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition-all shadow-md shadow-indigo-600/25 cursor-pointer font-sans"
+                >
+                  <span>View Impact Report</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
 
-                {/* Staged Specialized Agents with Semantic Colors */}
-                <div className="space-y-2">
-                  <div className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-                    SPECIALIZED MULTI-AGENT CORRELATION
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-                    {/* Dependency Agent - Blue */}
-                    <div className="p-2.5 rounded-md border border-blue-200 dark:border-blue-500/20 bg-blue-50/50 dark:bg-blue-500/[0.04]">
-                      <div className="flex items-center gap-1.5 text-blue-700 dark:text-blue-400 font-semibold mb-0.5">
-                        <GitFork className="w-3.5 h-3.5" />
-                        <span>Dependency</span>
-                      </div>
-                      <span className="text-[11px] text-zinc-600 dark:text-zinc-400">
-                        1 conflict flagged
-                      </span>
-                    </div>
-
-                    {/* Change Analysis Agent - Amber */}
-                    <div className="p-2.5 rounded-md border border-amber-200 dark:border-amber-500/20 bg-amber-50/50 dark:bg-amber-500/[0.04]">
-                      <div className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400 font-semibold mb-0.5">
-                        <FileDiff className="w-3.5 h-3.5" />
-                        <span>Change Agent</span>
-                      </div>
-                      <span className="text-[11px] text-zinc-600 dark:text-zinc-400">
-                        2 breaking APIs
-                      </span>
-                    </div>
-
-                    {/* Code Impact Agent - Teal */}
-                    <div className="p-2.5 rounded-md border border-teal-200 dark:border-teal-500/20 bg-teal-50/50 dark:bg-teal-500/[0.04]">
-                      <div className="flex items-center gap-1.5 text-teal-700 dark:text-teal-400 font-semibold mb-0.5">
-                        <Code2 className="w-3.5 h-3.5" />
-                        <span>Code Impact</span>
-                      </div>
-                      <span className="text-[11px] text-zinc-600 dark:text-zinc-400">
-                        4 files, 7 call sites
-                      </span>
-                    </div>
-
-                    {/* Security Agent - Coral */}
-                    <div className="p-2.5 rounded-md border border-rose-200 dark:border-rose-500/20 bg-rose-50/50 dark:bg-rose-500/[0.04]">
-                      <div className="flex items-center gap-1.5 text-rose-700 dark:text-rose-400 font-semibold mb-0.5">
-                        <ShieldAlert className="w-3.5 h-3.5" />
-                        <span>Security</span>
-                      </div>
-                      <span className="text-[11px] text-zinc-600 dark:text-zinc-400">
-                        1 CVE remediated
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Grounding & Critic Loop Highlight - Emerald & Teal */}
-                <div className="p-3 rounded-md border border-emerald-200 dark:border-emerald-500/20 bg-emerald-50/60 dark:bg-emerald-500/[0.04] text-xs">
-                  <div className="flex items-center justify-between font-mono mb-1">
-                    <span className="flex items-center gap-1.5 font-semibold text-emerald-800 dark:text-emerald-400">
-                      <ShieldCheck className="w-3.5 h-3.5" />
-                      <span>Verifier Critic Loop</span>
-                    </span>
-                    <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-500/20 px-1.5 py-0.2 rounded">
-                      VERIFIED
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-zinc-600 dark:text-zinc-300 font-sans">
-                    F-04 signature change grounded by AST match in <code className="text-zinc-800 dark:text-zinc-200">src/auth.py:35</code>. Zero hallucinations.
-                  </p>
-                </div>
+                <Link
+                  href="/new"
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] border border-[var(--border-subtle)] transition-colors font-sans"
+                >
+                  <span>New Analysis</span>
+                </Link>
               </div>
             </div>
           </div>
 
-          {/* ACTIVE BENCHMARK SPOTLIGHT */}
-          <div className="surface-card rounded-lg p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-start gap-3.5">
-              <div className="w-9 h-9 rounded-md bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-400 flex items-center justify-center font-mono font-bold text-sm">
-                FA
+          {/* 4 Clean Summary Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Card 1: Risk */}
+            <div
+              onClick={() => setIsRiskModalOpen(true)}
+              className="p-4 rounded-xl clay-card bg-[var(--bg-surface)] border border-[var(--border-subtle)] cursor-pointer hover:border-red-300 transition-all group"
+            >
+              <div className="flex items-center justify-between text-xs text-[var(--text-muted)] font-medium mb-1">
+                <span>Upgrade Risk</span>
+                <span className="text-[10px] text-red-500 font-bold group-hover:underline">Details</span>
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold text-zinc-900 dark:text-white font-sans">
-                    FastAPI Commerce API Benchmark
-                  </span>
-                  <RiskBadge level={DEMO_ANALYSIS_SUMMARY.riskLevel} score={DEMO_ANALYSIS_SUMMARY.riskScore} size="sm" />
-                </div>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 font-sans">
-                  Spec: <code className="font-mono text-zinc-700 dark:text-zinc-300">FastAPI 0.110.0 → 0.120.0</code> • 4 affected modules, 1 dependency conflict, 5 targeted tests.
-                </p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-bold text-red-600 dark:text-red-400 font-mono">72</span>
+                <span className="text-xs text-[var(--text-muted)] font-mono">/ 100</span>
+                <span className="text-xs px-2 py-0.5 rounded font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 ml-auto">
+                  HIGH
+                </span>
               </div>
+              <p className="text-xs text-[var(--text-secondary)] mt-1 font-sans">
+                Breaking changes require review
+              </p>
             </div>
 
+            {/* Card 2: Affected Files */}
             <Link
-              href="/analysis/fastapi-demo"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 shadow-sm transition-all self-start md:self-auto font-sans"
+              href="/analysis/fastapi-demo?tab=impact"
+              className="p-4 rounded-xl clay-card bg-[var(--bg-surface)] border border-[var(--border-subtle)] hover:border-indigo-300 transition-all block"
             >
-              <span>Inspect Full Dashboard</span>
-              <ArrowRight className="w-4 h-4" />
+              <div className="flex items-center justify-between text-xs text-[var(--text-muted)] font-medium mb-1">
+                <span>Affected Files</span>
+                <FileCode className="w-3.5 h-3.5 text-indigo-500" />
+              </div>
+              <div className="text-2xl font-bold text-[var(--text-primary)] font-mono">4</div>
+              <p className="text-xs text-[var(--text-secondary)] mt-1 font-sans">
+                Out of 48 total project files
+              </p>
+            </Link>
+
+            {/* Card 3: Breaking Changes */}
+            <Link
+              href="/analysis/fastapi-demo?tab=breaking"
+              className="p-4 rounded-xl clay-card bg-[var(--bg-surface)] border border-[var(--border-subtle)] hover:border-amber-300 transition-all block"
+            >
+              <div className="flex items-center justify-between text-xs text-[var(--text-muted)] font-medium mb-1">
+                <span>Breaking Changes</span>
+                <FileDiff className="w-3.5 h-3.5 text-amber-500" />
+              </div>
+              <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 font-mono">2</div>
+              <p className="text-xs text-[var(--text-secondary)] mt-1 font-sans">
+                Removed APIs & syntax changes
+              </p>
+            </Link>
+
+            {/* Card 4: Security Issues */}
+            <Link
+              href="/analysis/fastapi-demo?tab=security"
+              className="p-4 rounded-xl clay-card bg-[var(--bg-surface)] border border-[var(--border-subtle)] hover:border-green-300 transition-all block"
+            >
+              <div className="flex items-center justify-between text-xs text-[var(--text-muted)] font-medium mb-1">
+                <span>Security Fixes</span>
+                <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+              </div>
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400 font-mono">1 Patched</div>
+              <p className="text-xs text-[var(--text-secondary)] mt-1 font-sans">
+                Resolves DoS header bug
+              </p>
             </Link>
           </div>
 
-          {/* RECENT ANALYSES TABLE */}
-          <div className="surface-card rounded-lg p-5 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-200/80 dark:border-white/[0.06]">
-              <div className="flex items-center gap-2 font-sans">
-                <Clock className="w-4 h-4 text-indigo-500" />
-                <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
-                  Recent Upgrade Analyses
-                </span>
+          {/* 2-Column Section: Findings (Left 60%) + Risk & Agent Status (Right 40%) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Left: Simple Findings List */}
+            <div className="lg:col-span-7 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-bold text-[var(--text-primary)] font-sans">
+                    Key Findings
+                  </h3>
+                  <p className="text-xs text-[var(--text-secondary)]">
+                    Identified problems that need attention before upgrading
+                  </p>
+                </div>
+                <Link
+                  href="/findings"
+                  className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+                >
+                  <span>View All Findings</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
               </div>
-              <Link
-                href="/analyses"
-                className="text-xs font-mono text-indigo-600 dark:text-indigo-400 hover:underline"
-              >
-                View all ({DEMO_PREVIOUS_ANALYSES.length}) →
-              </Link>
+
+              <div className="space-y-3">
+                {DEMO_FINDINGS.map((finding) => (
+                  <div
+                    key={finding.id}
+                    className="p-4 rounded-xl clay-card bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-2 hover:border-indigo-200 transition-all"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <RiskBadge severity={finding.severity} size="sm" />
+                        <span className="text-sm font-semibold text-[var(--text-primary)] font-sans">
+                          {finding.title}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => setSelectedFinding(finding)}
+                        className="text-xs text-indigo-600 hover:text-indigo-700 font-medium cursor-pointer hover:underline"
+                      >
+                        View Details
+                      </button>
+                    </div>
+
+                    <p className="text-xs text-[var(--text-secondary)] font-sans leading-relaxed">
+                      {finding.description}
+                    </p>
+
+                    <div className="flex items-center justify-between text-xs text-[var(--text-muted)] pt-1 border-t border-[var(--border-subtle)]">
+                      <span className="font-mono text-[11px]">
+                        Affected: <strong className="text-[var(--text-primary)]">{finding.affectedFiles.join(", ")}</strong>
+                      </span>
+                      <span className="text-indigo-600 font-mono text-[11px]">
+                        API: {finding.affectedApi}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs font-mono text-left">
-                <thead>
-                  <tr className="text-zinc-400 dark:text-zinc-500 border-b border-zinc-100 dark:border-white/[0.04]">
-                    <th className="pb-2.5 font-medium">Analysis ID</th>
-                    <th className="pb-2.5 font-medium">Dependency</th>
-                    <th className="pb-2.5 font-medium">Version Hop</th>
-                    <th className="pb-2.5 font-medium">Repository</th>
-                    <th className="pb-2.5 font-medium">Risk Rating</th>
-                    <th className="pb-2.5 font-medium">Breaking APIs</th>
-                    <th className="pb-2.5 font-medium text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-100 dark:divide-white/[0.03]">
-                  {DEMO_PREVIOUS_ANALYSES.map((row) => (
-                    <tr key={row.id} className="hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors">
-                      <td className="py-3 font-bold text-indigo-600 dark:text-indigo-400">{row.id}</td>
-                      <td className="py-3 font-semibold text-zinc-900 dark:text-zinc-200">{row.dependency}</td>
-                      <td className="py-3 text-zinc-600 dark:text-zinc-400">
-                        {row.fromVersion} → {row.toVersion}
-                      </td>
-                      <td className="py-3 text-zinc-600 dark:text-zinc-300 font-sans">{row.repository}</td>
-                      <td className="py-3">
-                        <RiskBadge level={row.riskLevel as any} score={row.riskScore} size="sm" />
-                      </td>
-                      <td className="py-3 text-rose-600 dark:text-rose-400 font-semibold font-mono">
-                        {row.breakingChanges}
-                      </td>
-                      <td className="py-3 text-right">
-                        <Link
-                          href="/analysis/fastapi-demo"
-                          className="text-indigo-600 dark:text-indigo-400 hover:underline font-medium"
-                        >
-                          View Report
-                        </Link>
-                      </td>
-                    </tr>
+            {/* Right: Simplified Risk Card & 4 AI Agents */}
+            <div className="lg:col-span-5 space-y-5">
+              {/* Simple Upgrade Risk Card */}
+              <div className="p-5 rounded-2xl clay-card bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-4">
+                <div className="flex items-center justify-between pb-2 border-b border-[var(--border-subtle)]">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] font-mono">
+                    Upgrade Risk Summary
+                  </h3>
+                  <span className="px-2 py-0.5 rounded font-bold text-xs bg-red-100 text-red-700">
+                    HIGH
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-3xl font-extrabold text-red-600 font-mono">72</span>
+                    <span className="text-sm text-[var(--text-muted)] font-mono"> / 100</span>
+                    <p className="text-xs text-[var(--text-secondary)] font-sans mt-0.5">
+                      Composite Risk Score
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setIsRiskModalOpen(true)}
+                    className="text-xs font-semibold text-indigo-600 hover:underline cursor-pointer"
+                  >
+                    Why this score?
+                  </button>
+                </div>
+
+                <div className="space-y-2 text-xs text-[var(--text-secondary)] font-sans">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-red-500" />
+                    <span><strong>2 Breaking Changes</strong> in API parameters</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-amber-500" />
+                    <span><strong>4 Project Files</strong> require code edits</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-blue-500" />
+                    <span><strong>1 Transitive Conflict</strong> in Starlette pin</span>
+                  </div>
+                </div>
+
+                <Link
+                  href="/analysis/fastapi-demo"
+                  className="block w-full py-2.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-center font-medium text-xs transition-colors"
+                >
+                  Follow 5-Step Migration Plan →
+                </Link>
+              </div>
+
+              {/* 4 Simple AI Agents */}
+              <div className="p-5 rounded-2xl clay-card bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-[var(--border-subtle)]">
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] font-mono">
+                      Specialized AI Agents
+                    </h3>
+                    <p className="text-[11px] text-[var(--text-secondary)]">
+                      4 agents analyze different aspects of the upgrade
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  {agentsList.map((agent, i) => (
+                    <div
+                      key={i}
+                      onClick={() => setSelectedAgent(agent)}
+                      className="p-2.5 rounded-xl bg-[var(--bg-subtle)] hover:bg-indigo-50/70 border border-transparent hover:border-indigo-200 transition-all cursor-pointer flex items-center justify-between group"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs">
+                          {i + 1}
+                        </div>
+                        <div>
+                          <h4 className="text-xs font-semibold text-[var(--text-primary)] group-hover:text-indigo-600 font-sans">
+                            {agent.name}
+                          </h4>
+                          <p className="text-[11px] text-[var(--text-secondary)] line-clamp-1 font-sans">
+                            {agent.purpose}
+                          </p>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-[var(--text-muted)] group-hover:text-indigo-600 shrink-0" />
+                    </div>
                   ))}
-                </tbody>
-              </table>
+                </div>
+
+                <div className="pt-2 text-center">
+                  <span className="text-[11px] text-green-600 font-medium inline-flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    Verified by AI Final Validation Step
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </main>
       </div>
+
+      {/* Simple Modals */}
+      <FindingDetailsModal
+        finding={selectedFinding}
+        isOpen={Boolean(selectedFinding)}
+        onClose={() => setSelectedFinding(null)}
+      />
+
+      <RiskScoreModal
+        score={72}
+        isOpen={isRiskModalOpen}
+        onClose={() => setIsRiskModalOpen(false)}
+      />
+
+      <AgentDetailsModal
+        agent={selectedAgent}
+        isOpen={Boolean(selectedAgent)}
+        onClose={() => setSelectedAgent(null)}
+      />
     </div>
   );
 }

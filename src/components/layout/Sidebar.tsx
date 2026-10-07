@@ -8,14 +8,14 @@ import {
   LayoutDashboard,
   PlusCircle,
   History,
-  FolderGit2,
   FileSearch,
   ShieldCheck,
   Network,
   Settings,
   X,
-  Shield,
-  ArrowUpRight,
+  ArrowRight,
+  ClipboardList,
+  Sparkles,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -31,15 +31,15 @@ export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
       group: "WORKSPACE",
       items: [
         { label: "Overview", href: "/", icon: LayoutDashboard },
-        { label: "New Analysis", href: "/new", icon: PlusCircle, badge: "Launch" },
+        { label: "New Analysis", href: "/new", icon: PlusCircle },
         { label: "Analyses", href: "/analyses", icon: History },
       ],
     },
     {
-      group: "CODEBASE",
+      group: "ANALYSIS",
       items: [
-        { label: "Repositories", href: "/repositories", icon: FolderGit2 },
-        { label: "Findings", href: "/findings", icon: FileSearch },
+        { label: "Findings", href: "/findings", icon: FileSearch, badge: "4" },
+        { label: "Migration Plan", href: "/analysis/fastapi-demo", icon: ClipboardList },
         { label: "Evidence", href: "/evidence", icon: ShieldCheck },
       ],
     },
@@ -54,38 +54,32 @@ export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile Backdrop */}
       {mobileOpen && (
         <div
           onClick={onCloseMobile}
-          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs lg:hidden"
         />
       )}
 
-      {/* Main Sidebar */}
       <aside
         className={cn(
-          "fixed top-0 bottom-0 left-0 z-50 w-64 bg-zinc-50/95 dark:bg-[#0A0C11]/95 backdrop-blur-xl border-r border-zinc-200/80 dark:border-white/[0.08] flex flex-col justify-between transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:z-10",
+          "fixed top-0 bottom-0 left-0 z-50 w-60 bg-[var(--bg-surface)] hairline-r flex flex-col justify-between transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:z-10 select-none text-xs",
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
-        {/* Top: Logo & Grouped Navigation */}
-        <div className="flex flex-col flex-1 p-4 overflow-y-auto">
-          {/* Logo & Mobile Close */}
-          <div className="flex items-center justify-between pb-5 pt-1 px-2 border-b border-zinc-200/80 dark:border-white/[0.06]">
+        <div className="flex flex-col flex-1 overflow-y-auto">
+          {/* Brand Header */}
+          <div className="flex items-center justify-between px-4 h-13 hairline-b">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-7 h-7 rounded-md bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
-                <Shield className="w-4 h-4 fill-current" />
+              <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-sm shadow-indigo-600/30">
+                <Sparkles className="w-4 h-4" />
               </div>
-              <div className="flex flex-col">
-                <span className="font-bold tracking-tight text-sm text-zinc-900 dark:text-white flex items-center gap-1.5 font-sans">
+              <div>
+                <span className="font-bold text-sm text-[var(--text-primary)] font-sans tracking-tight block leading-none">
                   UpgradeGuard
-                  <span className="text-[9px] font-mono font-medium px-1 py-0.2 rounded bg-zinc-200 dark:bg-white/10 text-zinc-700 dark:text-zinc-300">
-                    v1.2
-                  </span>
                 </span>
-                <span className="text-[10px] text-zinc-500 font-mono tracking-wider">
-                  PRE-UPGRADE INTELLIGENCE
+                <span className="text-[10px] text-[var(--text-muted)] font-sans">
+                  AI Upgrade Assistant
                 </span>
               </div>
             </Link>
@@ -93,18 +87,18 @@ export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
             {onCloseMobile && (
               <button
                 onClick={onCloseMobile}
-                className="p-1.5 rounded-md text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200/50 dark:hover:bg-white/[0.08] lg:hidden"
+                className="p-1.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] lg:hidden cursor-pointer rounded-md"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             )}
           </div>
 
           {/* Grouped Navigation */}
-          <nav className="mt-5 space-y-6">
+          <nav className="p-3 space-y-4 font-sans">
             {sections.map((sec) => (
               <div key={sec.group} className="space-y-1">
-                <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 dark:text-zinc-500 px-3 block mb-1.5 font-semibold">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)] px-3 py-1 block">
                   {sec.group}
                 </span>
 
@@ -118,33 +112,30 @@ export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
 
                     return (
                       <Link
-                        key={item.href}
+                        key={item.label}
                         href={item.href}
                         onClick={onCloseMobile}
                         className={cn(
-                          "flex items-center justify-between px-3 py-2 rounded-md text-xs font-medium transition-all group select-none relative font-sans",
+                          "flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all",
                           isActive
-                            ? "text-zinc-950 dark:text-white bg-zinc-200/70 dark:bg-white/[0.08] font-semibold shadow-xs"
-                            : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-200/40 dark:hover:bg-white/[0.04]"
+                            ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 font-semibold shadow-2xs"
+                            : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
                         )}
                       >
                         <div className="flex items-center gap-2.5">
-                          {isActive && (
-                            <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-indigo-600 dark:bg-indigo-400 rounded-r" />
-                          )}
                           <Icon
                             className={cn(
                               "w-4 h-4 transition-colors",
                               isActive
                                 ? "text-indigo-600 dark:text-indigo-400"
-                                : "text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-700 dark:group-hover:text-zinc-300"
+                                : "text-[var(--text-muted)]"
                             )}
                           />
                           <span>{item.label}</span>
                         </div>
 
                         {item.badge && (
-                          <span className="text-[9px] font-mono bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 px-1.5 py-0.2 rounded font-semibold">
+                          <span className="text-[10px] px-1.5 py-0.2 rounded-full font-mono bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 font-semibold">
                             {item.badge}
                           </span>
                         )}
@@ -156,43 +147,32 @@ export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
             ))}
           </nav>
 
-          {/* Active Benchmark Mini Card in Sidebar */}
-          <div className="mt-6 p-3 rounded-lg border border-zinc-200 dark:border-white/[0.06] bg-white/70 dark:bg-[#0E1118]/80 text-xs shadow-xs">
-            <div className="flex items-center justify-between text-zinc-500 mb-1">
-              <span className="font-mono text-[10px] uppercase font-semibold text-zinc-600 dark:text-zinc-400">
-                ACTIVE BENCHMARK
+          {/* Simple Active Upgrade Box */}
+          <div className="mx-3 mt-auto mb-3 p-3 rounded-xl clay-card text-xs">
+            <div className="flex items-center justify-between text-[10px] uppercase font-semibold text-[var(--text-muted)] mb-1">
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                Demo Analysis
               </span>
-              <span className="text-[10px] font-mono text-rose-600 dark:text-rose-400 font-bold">
-                HIGH 72
-              </span>
+              <span className="text-amber-600 font-bold font-mono">Risk 72</span>
             </div>
-            <p className="text-xs font-mono font-medium text-zinc-900 dark:text-zinc-200">
+            <div className="font-semibold text-[var(--text-primary)] font-mono text-xs">
               FastAPI: 0.110.0 → 0.120.0
-            </p>
-            <div className="mt-2 flex items-center justify-between pt-1.5 border-t border-zinc-200/60 dark:border-white/[0.06]">
-              <span className="text-[11px] text-zinc-500 font-sans truncate mr-1">
-                FastAPI Commerce API
-              </span>
-              <Link
-                href="/analysis/fastapi-demo"
-                className="text-[11px] font-mono text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-0.5 flex-shrink-0"
-              >
-                <span>Inspect</span>
-                <ArrowUpRight className="w-3 h-3" />
-              </Link>
             </div>
+            <Link
+              href="/analysis/fastapi-demo"
+              className="mt-2 inline-flex items-center justify-between w-full p-1.5 rounded-md bg-[var(--bg-subtle)] hover:bg-indigo-50 hover:text-indigo-600 text-[11px] font-medium text-[var(--text-secondary)] transition-colors"
+            >
+              <span>View Report</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
 
-        {/* Bottom: System status and version */}
-        <div className="p-3.5 border-t border-zinc-200/80 dark:border-white/[0.06] bg-zinc-100/50 dark:bg-[#08090D] space-y-1.5 font-mono">
-          <div className="flex items-center justify-between text-[11px]">
-            <span className="text-zinc-500">Engine v1.4</span>
-            <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Critic Loop Online
-            </span>
-          </div>
+        {/* Bottom Simple Project Info */}
+        <div className="px-4 py-2.5 hairline-t text-[11px] font-sans text-[var(--text-muted)] flex items-center justify-between bg-[var(--bg-subtle)]">
+          <span>Final Year Project</span>
+          <span className="text-indigo-600 dark:text-indigo-400 font-medium">B.Tech Demo</span>
         </div>
       </aside>
     </>

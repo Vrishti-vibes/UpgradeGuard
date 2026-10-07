@@ -1,24 +1,9 @@
 import type { Metadata } from "next";
-import { Manrope, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import "./globals.css";
 
-const manrope = Manrope({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  weight: ["300", "400", "500", "600", "700", "800"],
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
-
 export const metadata: Metadata = {
-  title: "UpgradeGuard — Pre-Upgrade Dependency Intelligence",
+  title: "UpgradeGuard — Developer Dependency Investigation Console",
   description:
     "A Multi-Agent AI System for Dependency Upgrade Impact Analysis and Risk-Aware Migration Planning. Understand the impact before you upgrade.",
 };
@@ -29,12 +14,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" className="light" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body
-        className={`${manrope.variable} ${jetbrainsMono.variable} font-sans bg-[var(--bg-base)] text-[var(--text-primary)] antialiased selection:bg-indigo-500/25 selection:text-indigo-400`}
+        className="bg-[var(--bg-base)] text-[var(--text-primary)] antialiased selection:bg-indigo-500/25 selection:text-indigo-400"
       >
         <ThemeProvider>
-          <div className="min-h-screen bg-tech-grid flex flex-col">
+          <div className="min-h-screen flex flex-col font-sans">
             {children}
           </div>
         </ThemeProvider>

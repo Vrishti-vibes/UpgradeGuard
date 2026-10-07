@@ -3,14 +3,13 @@
 import React, { useState } from "react";
 import { Finding } from "@/types";
 import { RiskBadge } from "@/components/ui/RiskBadge";
-import { VerificationBadge } from "@/components/ui/VerificationBadge";
 import {
-  FileCode2,
+  FileCode,
   ChevronDown,
   ChevronUp,
-  ShieldCheck,
-  Code2,
+  CheckCircle2,
   Filter,
+  Code2,
 } from "lucide-react";
 
 interface BreakingChangesTabProps {
@@ -31,32 +30,29 @@ export function BreakingChangesTab({
   });
 
   return (
-    <div className="space-y-4">
-      {/* Filter and summary bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-lg border border-zinc-200 dark:border-white/[0.08] bg-white dark:bg-[#0A0C11]/90 shadow-xs">
-        <div className="flex items-center gap-2 text-xs font-mono text-zinc-600 dark:text-zinc-300">
-          <span className="font-semibold text-zinc-900 dark:text-white">Grounded Findings</span>
-          <span className="text-zinc-400">•</span>
-          <span>{findings.length} Discovered</span>
-          <span className="text-zinc-400">•</span>
-          <span className="text-emerald-700 dark:text-emerald-400 flex items-center gap-1 font-semibold">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            Verified against AST & Release Tag Diffs
-          </span>
+    <div className="space-y-4 font-sans text-sm">
+      {/* Filter Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl clay-card bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
+        <div>
+          <h3 className="font-bold text-sm text-[var(--text-primary)]">
+            Discovered Breaking Changes ({findings.length})
+          </h3>
+          <p className="text-xs text-[var(--text-secondary)]">
+            Changes between FastAPI 0.110.0 and 0.120.0 that affect this codebase
+          </p>
         </div>
 
-        {/* Filter */}
-        <div className="flex items-center gap-1.5 text-xs font-mono">
-          <Filter className="w-3.5 h-3.5 text-zinc-400" />
-          <span className="text-zinc-500 mr-1">Filter:</span>
+        {/* Filter Buttons */}
+        <div className="flex items-center gap-1.5 text-xs">
+          <span className="text-[var(--text-muted)] mr-1">Filter:</span>
           {["ALL", "HIGH", "MEDIUM"].map((sev) => (
             <button
               key={sev}
               onClick={() => setFilterSeverity(sev)}
-              className={`px-2 py-0.5 rounded text-[11px] transition-colors cursor-pointer ${
+              className={`px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                 filterSeverity === sev
-                  ? "bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 font-semibold"
-                  : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-white/[0.04]"
+                  ? "bg-indigo-600 text-white font-semibold shadow-xs"
+                  : "bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
             >
               {sev}
@@ -65,7 +61,7 @@ export function BreakingChangesTab({
         </div>
       </div>
 
-      {/* Findings List */}
+      {/* Findings Cards List */}
       <div className="space-y-3">
         {filteredFindings.map((finding) => {
           const isExpanded = expandedId === finding.id;
@@ -73,127 +69,97 @@ export function BreakingChangesTab({
           return (
             <div
               key={finding.id}
-              className="rounded-xl border border-zinc-200 dark:border-white/[0.08] bg-white dark:bg-[#0A0C11]/90 overflow-hidden shadow-xs transition-all"
+              className="rounded-2xl clay-card bg-[var(--bg-surface)] border border-[var(--border-subtle)] overflow-hidden transition-all"
             >
-              {/* Finding Summary Bar */}
+              {/* Card Header */}
               <div
                 onClick={() => setExpandedId(isExpanded ? null : finding.id)}
-                className="p-4 sm:p-5 cursor-pointer hover:bg-zinc-50/70 dark:hover:bg-white/[0.02] flex items-start justify-between gap-4 transition-colors"
+                className="p-5 cursor-pointer hover:bg-[var(--bg-subtle)]/50 flex items-start justify-between gap-4 transition-colors"
               >
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap items-center gap-2 mb-1.5 font-mono">
-                    <span className="text-xs font-bold text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-200 dark:border-indigo-500/20">
+                <div className="space-y-2 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <RiskBadge severity={finding.severity} size="sm" />
+                    <span className="text-xs font-mono font-bold text-indigo-600">
                       {finding.id}
                     </span>
-                    <RiskBadge level={finding.severity} size="sm" />
-                    <VerificationBadge status={finding.status} size="sm" />
-                    <span className="text-[11px] text-zinc-500 font-sans">
+                    <span className="text-xs text-[var(--text-muted)] font-mono">
                       Category: {finding.category}
                     </span>
                   </div>
 
-                  <h3 className="text-sm font-bold text-zinc-900 dark:text-white font-sans tracking-tight">
+                  <h4 className="text-base font-bold text-[var(--text-primary)]">
                     {finding.title}
-                  </h3>
+                  </h4>
 
-                  <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1 font-sans leading-relaxed">
+                  <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                     {finding.description}
                   </p>
 
-                  <div className="mt-3 flex flex-wrap items-center gap-4 text-xs font-mono text-zinc-600 dark:text-zinc-400">
+                  <div className="flex flex-wrap items-center gap-4 text-xs pt-1">
                     <div className="flex items-center gap-1.5">
-                      <Code2 className="w-3.5 h-3.5 text-zinc-400" />
-                      <span className="text-zinc-400">Target API:</span>
-                      <code className="text-indigo-700 dark:text-indigo-300 font-semibold bg-zinc-100 dark:bg-white/[0.04] px-1.5 py-0.5 rounded">
+                      <span className="text-[var(--text-muted)]">API:</span>
+                      <code className="text-indigo-600 font-mono font-semibold bg-indigo-50 dark:bg-indigo-950/40 px-2 py-0.5 rounded-md border border-indigo-100 dark:border-indigo-800/40">
                         {finding.affectedApi}
                       </code>
                     </div>
 
-                    <div className="flex items-center gap-1.5">
-                      <FileCode2 className="w-3.5 h-3.5 text-zinc-400" />
-                      <span className="text-zinc-400">Affected files:</span>
-                      <span className="text-zinc-800 dark:text-zinc-200 font-medium">
-                        {finding.affectedFiles.join(", ")}
-                      </span>
-                    </div>
-
-                    <div className="text-[11px]">
-                      Confidence:{" "}
-                      <span className="text-emerald-700 dark:text-emerald-400 font-semibold">
-                        {finding.confidence}
-                      </span>
+                    <div className="flex items-center gap-1.5 text-[var(--text-secondary)] font-mono text-[11px]">
+                      <FileCode className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+                      <span>{finding.affectedFiles.join(", ")}</span>
                     </div>
                   </div>
                 </div>
 
-                <button
-                  className="p-1.5 rounded text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
-                  aria-label="Toggle details"
-                >
-                  {isExpanded ? (
-                    <ChevronUp className="w-4 h-4" />
-                  ) : (
-                    <ChevronDown className="w-4 h-4" />
-                  )}
-                </button>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-indigo-600 font-medium hidden sm:inline">
+                    {isExpanded ? "Hide Solution" : "View Fix"}
+                  </span>
+                  <div className="p-1 rounded-lg bg-[var(--bg-subtle)] text-[var(--text-muted)]">
+                    {isExpanded ? (
+                      <ChevronUp className="w-4 h-4" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4" />
+                    )}
+                  </div>
+                </div>
               </div>
 
-              {/* Expanded Details */}
+              {/* Expanded Solution & Code Fix */}
               {isExpanded && (
-                <div className="px-5 pb-5 pt-2 border-t border-zinc-100 dark:border-white/[0.06] bg-zinc-50/60 dark:bg-[#07090D]/80 space-y-4">
-                  {/* Code Diff Box */}
+                <div className="p-5 pt-3 border-t border-[var(--border-subtle)] bg-[var(--bg-subtle)]/50 space-y-4">
                   {(finding.diffBefore || finding.diffAfter) && (
-                    <div>
-                      <span className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block mb-2 font-semibold">
-                        Semantic Syntax Transformation
+                    <div className="space-y-2">
+                      <span className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider font-mono">
+                        Before / After Code Solution
                       </span>
-                      <div className="rounded-lg border border-zinc-200 dark:border-white/[0.08] bg-white dark:bg-[#050608] p-3 font-mono text-xs overflow-x-auto space-y-1 shadow-inner">
-                        {finding.diffBefore && (
-                          <div className="text-rose-700 dark:text-rose-400 whitespace-pre">
-                            {finding.diffBefore}
-                          </div>
-                        )}
-                        {finding.diffAfter && (
-                          <div className="text-emerald-700 dark:text-emerald-400 whitespace-pre">
-                            {finding.diffAfter}
-                          </div>
-                        )}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs font-mono">
+                        <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/40">
+                          <span className="text-[10px] text-red-700 dark:text-red-400 font-bold uppercase block mb-1">
+                            - Old Deprecated Code
+                          </span>
+                          <pre className="text-red-800 dark:text-red-300 whitespace-pre-wrap">{finding.diffBefore}</pre>
+                        </div>
+                        <div className="p-3.5 rounded-xl bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800/40">
+                          <span className="text-[10px] text-green-700 dark:text-green-400 font-bold uppercase block mb-1">
+                            + Updated Working Code
+                          </span>
+                          <pre className="text-green-800 dark:text-green-300 whitespace-pre-wrap">{finding.diffAfter}</pre>
+                        </div>
                       </div>
                     </div>
                   )}
 
-                  {/* Verifier Note */}
-                  {finding.verifierNote && (
-                    <div className="rounded-lg p-3 bg-emerald-50/80 dark:bg-emerald-500/[0.04] border border-emerald-200 dark:border-emerald-500/20 text-xs">
-                      <div className="flex items-center gap-1.5 text-emerald-800 dark:text-emerald-400 font-mono font-semibold mb-1 text-[11px]">
-                        <ShieldCheck className="w-3.5 h-3.5" />
-                        <span>Verifier Critic Grounding Audit</span>
-                      </div>
-                      <p className="text-zinc-700 dark:text-zinc-300 font-sans leading-relaxed">
-                        {finding.verifierNote}
-                      </p>
+                  {onOpenFileInCodeTab && (
+                    <div className="flex justify-end pt-1">
+                      <button
+                        onClick={() => onOpenFileInCodeTab(finding.affectedFiles[0])}
+                        className="px-4 py-2 rounded-xl text-xs font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 transition-colors flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Code2 className="w-4 h-4" />
+                        <span>Inspect in Code Impact Tab →</span>
+                      </button>
                     </div>
                   )}
-
-                  {/* Actions */}
-                  <div className="flex items-center justify-between pt-1">
-                    <div className="flex items-center gap-2">
-                      {finding.affectedFiles.map((f) => (
-                        <button
-                          key={f}
-                          onClick={() => onOpenFileInCodeTab && onOpenFileInCodeTab(f)}
-                          className="text-[11px] font-mono px-2.5 py-1 rounded bg-zinc-200/70 hover:bg-zinc-200 dark:bg-white/[0.05] dark:hover:bg-white/[0.1] text-zinc-800 dark:text-zinc-200 transition-colors flex items-center gap-1 cursor-pointer"
-                        >
-                          <FileCode2 className="w-3 h-3 text-indigo-500" />
-                          <span>Open in Code Viewer ({f})</span>
-                        </button>
-                      ))}
-                    </div>
-
-                    <span className="text-[11px] font-mono text-zinc-400">
-                      ID: {finding.id} • Status: {finding.status}
-                    </span>
-                  </div>
                 </div>
               )}
             </div>
