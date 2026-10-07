@@ -194,21 +194,55 @@ export function ArchitectureViewer() {
         </div>
 
         {/* Step 5: Final Synthesized Report */}
-        <div className="p-4 rounded-xl clay-card bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex items-center justify-between">
+        <div className="p-4 rounded-2xl clay-card bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-indigo-100 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
               <FileText className="w-5 h-5" />
             </div>
             <div>
               <span className="text-[10px] font-mono text-[var(--text-muted)] uppercase font-semibold">Step 5: Output</span>
               <h4 className="text-sm font-bold text-[var(--text-primary)] font-sans">
-                Synthesized Risk Score + 5-Step Migration Playbook + Targeted Tests
+                Composite Risk Score + 5-Step Migration Playbook + Targeted Validation Tests
               </h4>
             </div>
           </div>
-          <span className="text-xs text-indigo-600 font-medium font-sans">Final Output</span>
+          <span className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold font-sans">Final Output</span>
         </div>
       </div>
+
+      {/* Expandable Viva Defense & Technical Details */}
+      <details className="p-5 rounded-2xl clay-card bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-xs font-sans group shadow-sm">
+        <summary className="font-bold text-sm text-[var(--text-primary)] cursor-pointer flex items-center justify-between select-none">
+          <div className="flex items-center gap-2">
+            <Info className="w-4 h-4 text-indigo-500" />
+            <span>Technical Architecture Notes (Viva Defense Guide)</span>
+          </div>
+          <span className="text-xs text-indigo-600 dark:text-indigo-400 font-normal group-open:rotate-180 transition-transform">▼</span>
+        </summary>
+
+        <div className="mt-4 pt-4 border-t border-[var(--border-subtle)] space-y-3 text-zinc-700 dark:text-zinc-300 leading-relaxed">
+          <div className="p-3 rounded-xl bg-[var(--bg-subtle)] space-y-1">
+            <strong className="text-zinc-900 dark:text-white block font-sans">1. Why Multi-Agent?</strong>
+            <p>
+              Upgrades involve heterogeneous data sources: dependency resolver graphs, unstructured GitHub changelogs, AST code call sites, and CVE feeds. Delegating to specialized agents allows parallel execution with isolated domain prompts.
+            </p>
+          </div>
+
+          <div className="p-3 rounded-xl bg-[var(--bg-subtle)] space-y-1">
+            <strong className="text-zinc-900 dark:text-white block font-sans">2. AI Verification Role:</strong>
+            <p>
+              LLMs can hallucinate breaking changes that do not apply to the specific codebase. The AI Verification step cross-references candidate deprecations against AST static symbol references to eliminate false alarms.
+            </p>
+          </div>
+
+          <div className="p-3 rounded-xl bg-[var(--bg-subtle)] space-y-1">
+            <strong className="text-zinc-900 dark:text-white block font-sans">3. Targeted Test Suite Generation:</strong>
+            <p>
+              Rather than executing full integration suites, UpgradeGuard synthesizes targeted unit tests for the 4 modified modules, minimizing test execution time and CI compute.
+            </p>
+          </div>
+        </div>
+      </details>
 
       {/* Simple Agent Details Modal */}
       <AgentDetailsModal
